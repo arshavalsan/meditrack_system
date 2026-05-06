@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEDSYS – Register</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body class="auth-body">
+  <<div class="auth-card">
+    <div class="card-header">
+      <div class="logo">
+        <div class="cross"></div>
+        <span class="brand">MEDSYS</span>
+        <div class="header-right">
+          <div class="header-title">New Account</div>
+        </div>
+      </div>
+      <div class="sub">Medical Information System</div>
+    </div>
+
+    <div class="card-body">
+      <form action="/submit-registration" method="post">
+
+        <div class="section-title">Personal Information</div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="firstname">First Name</label>
+            <input type="text" id="firstname" name="firstname" placeholder="John" required>
+          </div>
+          <div class="field">
+            <label for="lastname">Last Name</label>
+            <input type="text" id="lastname" name="lastname" placeholder="Doe" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" placeholder="john.doe@hospital.org" required>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="phone">Phone</label>
+            <input type="tel" id="phone" name="phone" placeholder="+1 (555) 000-0000">
+          </div>
+          <div class="field">
+            <label for="role">Role</label>
+            <select id="role" name="role" required>
+              <option value="" disabled selected>Select role</option>
+              <option>Doctor</option>
+              <option>Nurse</option>
+              <option>Administrator</option>
+              <option>Pharmacist</option>
+              <option>Lab Technician</option>
+              <option>Receptionist</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-title spacer">Account Credentials</div>
+
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" placeholder="Choose a username" required>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            placeholder="Min. 8 chars, 1 Uppercase, 1 Number" 
+            required 
+            pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+            title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters">
+        </div>
+
+        <div class="field">
+          <label for="confirm">Confirm Password</label>
+          <input type="password" id="confirm" name="confirm" placeholder="Re-enter password" required>
+        </div>
+
+        <div class="terms">
+          <input type="checkbox" id="terms" required>
+          <label for="terms" style="text-transform:none; letter-spacing:0; font-weight:400; color:#666;">
+            I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a> of MEDSYS
+          </label>
+        </div>
+
+        <button type="submit" class="btn">Create Account</button>
+      </form>
+      <div class="login-text">
+        Already have an account? <a href="login.html">Sign in here</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

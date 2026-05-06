@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEDSYS Admin</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+</head>
+<body>
+
+<div class="topbar"></div>
+
+<div class="container">
+
+    <div class="header">
+        <h1>User Management</h1>
+        <button class="add-btn">+ Add User</button>
+    </div>
+
+    <div class="table-card">
+
+        <div class="table-header">
+            <h3>Registered Users</h3>
+            <span>{{ users|length }} Records</span>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Contact</th>
+                    <th>Role</th>
+                    <th>Username</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for user in users %}
+                <tr>
+
+                    <!-- USER -->
+                    <td>
+                        <div class="user-cell">
+                            <div class="avatar">
+                                {{ user.firstname[:1] }}{{ user.lastname[:1] }}
+                            </div>
+                            <div>
+                                <div class="user-name">
+                                    {{ user.firstname }} {{ user.lastname }}
+                                </div>
+                                <div class="user-id">
+                                    ID #{{ user.id }}
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <!-- CONTACT -->
+                    <td>
+                        <div class="contact-cell">
+                            <div>{{ user.email }}</div>
+                            <small>{{ user.phone }}</small>
+                        </div>
+                    </td>
+
+                    <!-- ROLE -->
+                    <td>
+                        <span class="role-badge 
+                            {% if user.role == 'Doctor' %}doctor
+                            {% elif user.role == 'Nurse' %}nurse
+                            {% elif user.role == 'Administrator' %}admin
+                            {% elif user.role == 'Pharmacist' %}pharma
+                            {% endif %}">
+                            {{ user.role }}
+                        </span>
+                    </td>
+
+                    <!-- USERNAME -->
+                    <td>
+                        <span class="username">@{{ user.username }}</span>
+                    </td>
+
+                    <!-- ACTIONS -->
+                    <td>
+                        <button class="edit-btn">Edit</button>
+                        <button class="delete-btn">Delete</button>
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+</body>
+</html>

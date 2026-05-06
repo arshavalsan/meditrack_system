@@ -1,0 +1,284 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f7fb;
+    color: #0f172a;
+}
+
+.topbar {
+    height: 24px;
+    background: #0f172a;
+}
+
+.container {
+    padding: 40px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.header h1 {
+    font-size: clamp(28px, 5vw, 54px);
+    font-weight: 700;
+}
+
+.add-btn {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 14px;
+    font-size: clamp(16px, 2vw, 22px);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.table-card {
+    background: white;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 28px 30px;
+    font-size: clamp(18px, 2.5vw, 28px);
+    font-weight: 600;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* ── Desktop table ── */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background: #2347b6;
+    color: white;
+}
+
+th {
+    padding: 22px;
+    text-align: left;
+    font-size: clamp(14px, 1.8vw, 24px);
+}
+
+td {
+    padding: 24px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: clamp(13px, 1.5vw, 18px);
+}
+
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563eb, #06b6d4);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.user-name {
+    font-size: clamp(14px, 1.5vw, 20px);
+    font-weight: 600;
+}
+
+.user-id {
+    color: #64748b;
+    font-size: clamp(12px, 1.2vw, 16px);
+}
+
+.contact-cell div {
+    font-size: clamp(13px, 1.4vw, 18px);
+}
+
+.contact-cell small {
+    color: #94a3b8;
+}
+
+.role-badge {
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: clamp(12px, 1.3vw, 16px);
+    display: inline-block;
+}
+
+.doctor  { background: #dcfce7; color: #166534; }
+.nurse   { background: #fce7f3; color: #9d174d; }
+.admin   { background: #dbeafe; color: #1d4ed8; }
+.pharma  { background: #fef3c7; color: #92400e; }
+
+.username {
+    background: #f1f5f9;
+    padding: 10px 16px;
+    border-radius: 20px;
+    font-size: clamp(12px, 1.3vw, 16px);
+    word-break: break-all;
+}
+
+.edit-btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    margin-right: 10px;
+    cursor: pointer;
+    font-size: clamp(12px, 1.2vw, 16px);
+}
+
+.delete-btn {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: clamp(12px, 1.2vw, 16px);
+}
+
+/* ── Tablet (≤ 1024px): tighten spacing ── */
+@media (max-width: 1024px) {
+    .container {
+        padding: 24px;
+    }
+
+    th, td {
+        padding: 16px 14px;
+    }
+
+    .avatar {
+        width: 46px;
+        height: 46px;
+        font-size: 18px;
+    }
+}
+
+/* ── Mobile (≤ 768px): card layout ── */
+@media (max-width: 768px) {
+    .container {
+        padding: 16px;
+    }
+
+    .table-header {
+        padding: 20px 16px;
+    }
+
+    /* Hide the real thead */
+    thead {
+        display: none;
+    }
+
+    /* Each row becomes a card */
+    tbody tr {
+        display: block;
+        margin: 12px 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    tbody tr:last-child {
+        margin-bottom: 16px;
+    }
+
+    /* Each cell becomes a row inside the card */
+    td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 14px;
+        gap: 12px;
+    }
+
+    td:last-child {
+        border-bottom: none;
+    }
+
+    /* Label injected via data-label attribute */
+    td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        color: #64748b;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        min-width: 80px;
+        flex-shrink: 0;
+    }
+
+    /* User cell: keep avatar + text together */
+    .user-cell {
+        gap: 12px;
+    }
+
+    .avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    /* Action buttons: stack them */
+    .edit-btn,
+    .delete-btn {
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+
+    .edit-btn {
+        margin-right: 6px;
+    }
+}
+
+/* ── Small phones (≤ 480px) ── */
+@media (max-width: 480px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .add-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    td {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    td::before {
+        margin-bottom: 4px;
+    }
+}

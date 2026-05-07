@@ -3,11 +3,9 @@ import sqlite3
 
 app = Flask(__name__)
 
-# Create database and users table
 def init_db():
     conn = sqlite3.connect("hospital.db")
     cursor = conn.cursor()
-
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,22 +18,16 @@ def init_db():
             password TEXT NOT NULL
         )
     ''')
-
     conn.commit()
     conn.close()
 
-
-# Home route
 @app.route('/')
-#def home():
-    #return redirect('/register')
+def home():
+    return render_template('index.html')
 
-
-# Register page
 @app.route('/register')
 def register():
     return render_template("register.html")
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -45,24 +37,24 @@ def login():
 
         conn = sqlite3.connect("hospital.db")
         cursor = conn.cursor()
-
         cursor.execute(
             "SELECT * FROM users WHERE username=? AND password=?",
             (username, password)
         )
-
         user = cursor.fetchone()
         conn.close()
 
         if user:
-            return "Login Successful!"
+            role = user[5]  # role is the 6th column (index 5)
+            if role == 'Administrator':
+                return redirect('/admin')
+            else:
+                return redirect('/')
         else:
             return "Invalid Username or Password"
 
     return render_template("login.html")
 
-
-# Handle registration form
 @app.route('/submit-registration', methods=['POST'])
 def submit_registration():
     firstname = request.form['firstname']
@@ -75,19 +67,15 @@ def submit_registration():
 
     conn = sqlite3.connect("hospital.db")
     cursor = conn.cursor()
-
     try:
         cursor.execute('''
             INSERT INTO users 
             (firstname, lastname, email, phone, role, username, password)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         ''', (firstname, lastname, email, phone, role, username, password))
-
         conn.commit()
-
     except sqlite3.IntegrityError:
         return "Username or Email already exists!"
-
     finally:
         conn.close()
 
@@ -98,31 +86,45 @@ def admin():
     conn = sqlite3.connect("hospital.db")
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT 
-            id,
-            firstname,
-            lastname,
-            email,
-            phone,
-            role,
-            username
-        FROM users
-    """)
-
+    cursor.execute("SELECT id, firstname, lastname, email, phone, role, username FROM users")
     users = cursor.fetchall()
-
     conn.close()
-
     return render_template("admin.html", users=users)
 
+@app.route('/edit/<int:user_id>', methods=['POST'])
+def edit_user(user_id):
+    firstname = request.form['firstname']
+    lastname = request.form['lastname']
+    email = request.form['email']
+    phone = request.form['phone']
+    role = request.form['role']
+    username = request.form['username']
+
+    conn = sqlite3.connect("hospital.db")
+    cursor = conn.cursor()
+    try:
+        cursor.execute('''
+            UPDATE users 
+            SET firstname=?, lastname=?, email=?, phone=?, role=?, username=?
+            WHERE id=?
+        ''', (firstname, lastname, email, phone, role, username, user_id))
+        conn.commit()
+    except sqlite3.IntegrityError:
+        return "Username or Email already exists!"
+    finally:
+        conn.close()
+
+    return redirect('/admin')
+
+@app.route('/delete/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+    conn = sqlite3.connect("hospital.db")
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM users WHERE id=?", (user_id,))
+    conn.commit()
+    conn.close()
+    return redirect('/admin')
 
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)
-
-
-
-
-    

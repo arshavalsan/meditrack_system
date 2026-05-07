@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <title>MEDSYS - Home</title>
+   
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">
+            <img src="logo.jpeg" alt="MEDSYS Logo"><img src="{{ url_for('static', filename='logo.jpeg') }}" alt="MEDSYS Logo">
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="#">About Us</a></li>
+           <li>
+    <a href="resources.html">Resources</a>
+    <div class="dropdown-content">
+       <a href="system-requirements.html">System Requirements</a>
+        <a href="resources.html#downloads">Downloads</a>
+        <a href="resources.html#faq">FAQ</a>
+        <a href="resources.html#documentation">Documentation</a>
+        <a href="resources.html#support">Support</a>
+    </div>
+</li>
+            <li>
+                <a href="#">Contact Us</a>
+                <div class="dropdown-content">
+                    <a href="#">Email</a>
+                    <a href="#">Locations</a>
+                </div>
+            </li>
+        </ul>
+        <div class="login-btn">
+            <ul class="nav-links" style="flex-grow: 0;">
+                <li><a href="login">Login</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="hero">
+        <div class="hero-badge">&#9733; Trusted by 500+ Hospitals Worldwide</div>
+        <h1>Welcome to <span>MEDSYS!</span></h1>
+        <p>A smart and simple Hospital Management System to manage patients, staff, billing, and pharmacy all in one place — faster, safer, and smarter.</p>
+        <div class="hero-buttons">
+            <a href="#" class="btn-primary">Get Started</a>
+            <a href="#" class="btn-secondary">Learn More</a>
+        </div>
+        <div class="hero-highlights">
+            <div class="highlight-item">
+                <div class="highlight-icon">&#128196;</div>
+                <p><strong>Patient Records</strong>Secure &amp; instant access</p>
+            </div>
+            <div class="highlight-item">
+                <div class="highlight-icon">&#128176;</div>
+                <p><strong>Smart Billing</strong>Automated &amp; error-free</p>
+            </div>
+            <div class="highlight-item">
+                <div class="highlight-icon">&#128138;</div>
+                <p><strong>Pharmacy</strong>Stock &amp; expiry tracking</p>
+            </div>
+            <div class="highlight-item">
+                <div class="highlight-icon">&#128101;</div>
+                <p><strong>Staff Scheduling</strong>Shifts made easy</p>
+            </div>
+        </div>
+        <div class="hero-trust">
+            <div class="trust-item"><span class="dot"></span> HIPAA Compliant</div>
+            <div class="trust-item"><span class="dot"></span> 99.9% Uptime Guaranteed</div>
+            <div class="trust-item"><span class="dot"></span> 24/7 Technical Support</div>
+            <div class="trust-item"><span class="dot"></span> Cloud &amp; On-Premise Ready</div>
+        </div>
+    </div>
+
+    <div class="features">
+        <h2>Our Core Features</h2>
+        <div class="features-grid">
+            <div class="card"><h3>Patient Records</h3><p>Securely store and access complete patient history and medical records anytime.</p></div>
+            <div class="card"><h3>Smart Billing</h3><p>Automated billing and invoice generation to reduce errors and save time.</p></div>
+            <div class="card"><h3>Pharmacy Management</h3><p>Track medicine stock, expiry dates, and automate supplier reorders easily.</p></div>
+            <div class="card"><h3>Staff Scheduling</h3><p>Manage doctor and nurse shifts with ease using our built-in scheduler.</p></div>
+        </div>
+    </div>
+
+    <div class="stats">
+        <div><h2>500+</h2><p>Hospitals Joined</p></div>
+        <div><h2>1M+</h2><p>Patients Managed</p></div>
+        <div><h2>99.9%</h2><p>System Uptime</p></div>
+    </div>
+
+    <footer class="footer-main">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>About MEDSYS</h4>
+                <p>MEDSYS is a trusted Hospital Management System built to simplify operations across patient records, billing, pharmacy, and staff management — all under one secure platform.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Contact Information</h4>
+                <div class="info-item"><span class="icon">&#9993;</span><span>support@medsys.com</span></div>
+                <div class="info-item"><span class="icon">&#9742;</span><span>+1 (800) 123-4567</span></div>
+                <div class="info-item"><span class="icon">&#128205;</span><span>123 Health Avenue, Medical City, NY 10001, USA</span></div>
+                <div class="info-item"><span class="icon">&#128231;</span><span>info@medsys.com</span></div>
+            </div>
+            <div class="footer-col">
+                <h4>Support Hours</h4>
+                <div class="footer-hours">
+                    <div class="row"><span>Monday – Friday</span><span>8:00 AM – 8:00 PM</span></div>
+                    <div class="row"><span>Saturday</span><span>9:00 AM – 5:00 PM</span></div>
+                    <div class="row"><span>Sunday</span><span>Emergency Only</span></div>
+                    <div class="row"><span>Technical Support</span><span>24 / 7</span></div>
+                </div>
+            </div>
+        </div>
+        <hr class="footer-divider">
+        <div class="footer-bottom">
+            <span>&copy; 2026 MEDSYS Hospital Management System. All Rights Reserved.</span>
+            <span class="footer-tagline">Empowering Healthcare, One Hospital at a Time.</span>
+        </div>
+    </footer>
+</body>
+</html>

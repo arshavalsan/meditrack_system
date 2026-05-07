@@ -25,11 +25,12 @@ body {
     align-items: center;
     background-color: black;
     padding: 0 20px;
-    height: 150px;
+    height: 200px;
 }
 
 .logo img {
-    height: 150px;
+    height: 100px;
+     align-items: center;
     width: auto;
     display: block;
 }

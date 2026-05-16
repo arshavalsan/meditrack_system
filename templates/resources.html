@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEDSYS - Resources</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0b1f2a;
+            --blue-dark: #0d47a1;
+            --blue-mid: #1565c0;
+            --blue-light: #1e88e5;
+            --accent: #00c9ff;
+            --accent2: #38ef7d;
+            --white: #ffffff;
+            --gray-light: #f0f4f8;
+            --gray-text: #b0c4ce;
+            --card-bg: rgba(255,255,255,0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #0b1f2a 0%, #1a3a4a 50%, #0d2535 100%);
+            color: var(--white);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            text-align: center;
+            padding: 70px 20px 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -60px; left: 50%;
+            transform: translateX(-50%);
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(0,201,255,0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .header .badge {
+            display: inline-block;
+            background: rgba(0,201,255,0.15);
+            border: 1px solid rgba(0,201,255,0.3);
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 14px;
+            background: linear-gradient(90deg, #ffffff, #00c9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.05rem;
+            color: var(--gray-text);
+            max-width: 480px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* ── GRID ── */
+        .content {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px 30px 60px;
+            flex: 1;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        /* ── CARDS ── */
+        .box {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 30px;
+            transition: transform 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--blue-light));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .box:hover {
+            transform: translateY(-6px);
+            border-color: rgba(0,201,255,0.25);
+            background: rgba(255,255,255,0.07);
+        }
+
+        .box:hover::before {
+            opacity: 1;
+        }
+
+        .box-icon {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .icon-blue   { background: rgba(21,101,192,0.25); }
+        .icon-teal   { background: rgba(0,201,255,0.15); }
+        .icon-green  { background: rgba(56,239,125,0.15); }
+        .icon-purple { background: rgba(149,117,205,0.2); }
+        .icon-orange { background: rgba(255,167,38,0.2); }
+        .icon-pink   { background: rgba(240,98,146,0.2); }
+
+        .box h2 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--white);
+        }
+
+        .box p {
+            font-size: 0.9rem;
+            color: var(--gray-text);
+            line-height: 1.65;
+            flex: 1;
+        }
+
+        .box a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--accent);
+            font-size: 0.88rem;
+            font-weight: 500;
+            text-decoration: none;
+            margin-top: 4px;
+            transition: gap 0.2s ease;
+        }
+
+        .box a:hover { gap: 10px; }
+        .box a::after { content: '→'; }
+
+        /* ── FOOTER ── */
+        .footer-main {
+            background: #071318;
+            color: var(--gray-text);
+            padding: 50px 30px 24px;
+            font-size: 13.5px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 36px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .footer-col h4 {
+            color: var(--white);
+            font-family: 'Sora', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 14px;
+        }
+
+        .footer-col p { color: #8aa5b2; line-height: 1.65; }
+
+        .info-item {
+            display: flex; align-items: center;
+            gap: 10px;
+            margin-bottom: 9px;
+            color: #8aa5b2;
+        }
+
+        .icon { font-size: 15px; }
+
+        .footer-hours .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 7px;
+            color: #8aa5b2;
+        }
+
+        .footer-divider {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            margin: 30px auto 20px;
+            max-width: 1100px;
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 12px;
+            color: #506a76;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .footer-tagline { font-style: italic; }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .box {
+            animation: fadeUp 0.5s ease both;
+        }
+        .box:nth-child(1) { animation-delay: 0.05s; }
+        .box:nth-child(2) { animation-delay: 0.12s; }
+        .box:nth-child(3) { animation-delay: 0.19s; }
+        .box:nth-child(4) { animation-delay: 0.26s; }
+        .box:nth-child(5) { animation-delay: 0.33s; }
+        .box:nth-child(6) { animation-delay: 0.40s; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="badge">Resources</div>
+    <h1>MEDSYS Resources</h1>
+    <p>Helpful materials to guide you through every feature of the system</p>
+</div>
+
+<div class="content">
+    <div class="grid">
+
+        <div class="box">
+            <div class="box-icon icon-blue">🖥️</div>
+            <h2>System Requirements</h2>
+            <p>MEDSYS works best on modern browsers like Chrome, Edge, or Firefox. Minimum requirements include 4GB RAM and a stable internet connection.</p>
+            <a href="/sysreq">View Full Requirements</a>
+        </div>
+
+        <div class="box">
+            <div class="box-icon icon-teal">📥</div>
+            <h2>Downloads</h2>
+            <p>Download desktop tools, reports, and system updates here. Always use the latest version for the best performance.</p>
+            <a href="#">Download Files</a>
+        </div>
+
+        <div class="box">
+            <div class="box-icon icon-green">❓</div>
+            <h2>FAQ</h2>
+            <p>Common questions about MEDSYS usage, login issues, and features. Find quick answers without contacting support.</p>
+            <a href="#">Browse FAQ</a>
+        </div>
+
+        <div class="box">
+            <div class="box-icon icon-purple">📖</div>
+            <h2>Documentation</h2>
+            <p>Explore detailed guides on how to use MEDSYS features including patient management, billing, and pharmacy modules.</p>
+            <a href="/documentation">Read Documentation</a>
+        </div>
+
+        <div class="box">
+            <div class="box-icon icon-orange">🎧</div>
+            <h2>Support</h2>
+            <p>Need help? Contact our support team or browse frequently asked questions. We're here to assist you anytime.</p>
+            <a href="/support">Get Support</a>
+        </div>
+
+        <div class="box">
+            <div class="box-icon icon-pink">🎬</div>
+            <h2>Training Videos</h2>
+            <p>Watch tutorials to understand how to efficiently use the system. Step-by-step walkthroughs for every module.</p>
+            <a href="#">Watch Videos</a>
+        </div>
+
+    </div>
+</div>
+
+<footer class="footer-main">
+    <div class="footer-grid">
+        <div class="footer-col">
+            <h4>About MEDSYS</h4>
+            <p>MEDSYS is a trusted Hospital Management System built to simplify operations across patient records, billing, pharmacy, and staff management — all under one secure platform.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Contact Information</h4>
+            <div class="info-item"><span class="icon">✉️</span><span>support@medsys.com</span></div>
+            <div class="info-item"><span class="icon">📞</span><span>+1 (800) 123-4567</span></div>
+            <div class="info-item"><span class="icon">📍</span><span>123 Health Avenue, Medical City, NY 10001</span></div>
+            <div class="info-item"><span class="icon">📧</span><span>info@medsys.com</span></div>
+        </div>
+        <div class="footer-col">
+            <h4>Support Hours</h4>
+            <div class="footer-hours">
+                <div class="row"><span>Monday – Friday</span><span>8:00 AM – 8:00 PM</span></div>
+                <div class="row"><span>Saturday</span><span>9:00 AM – 5:00 PM</span></div>
+                <div class="row"><span>Sunday</span><span>Emergency Only</span></div>
+                <div class="row"><span>Technical Support</span><span>24 / 7</span></div>
+            </div>
+        </div>
+    </div>
+    <hr class="footer-divider">
+    <div class="footer-bottom">
+        <span>© 2026 MEDSYS Hospital Management System. All Rights Reserved.</span>
+        <span class="footer-tagline">Empowering Healthcare, One Hospital at a Time.</span>
+    </div>
+</footer>
+
+</body>
+</html>

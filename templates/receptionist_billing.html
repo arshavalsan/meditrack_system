@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEDSYS - Billing & Payments</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ══════════════════════════════════════
+       DARK LEFT SIDEBAR
+    ══════════════════════════════════════ */
+    .sidebar {
+      width: 220px;
+      min-height: 100vh;
+      background: #1a1f2e;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 200;
+      transition: transform 0.3s ease;
+    }
+    .sidebar-brand {
+      padding: 22px 20px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sidebar-brand img {
+      width: 38px; height: 38px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+    .sidebar-brand .brand-text .brand-name {
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .sidebar-brand .brand-text .brand-sub {
+      color: #6b7896;
+      font-size: 11px;
+      margin-top: 1px;
+    }
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 9px;
+      color: #8b95aa;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .sidebar-link .nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.06); color: #ffffff; }
+    .sidebar-link.active {
+      background: #2563eb;
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(37,99,235,0.4);
+    }
+    .sidebar-footer {
+      padding: 14px 12px 20px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .sidebar-meta { font-size: 12px; color: #4b5268; padding: 0 6px 12px; }
+    .sidebar-meta b { color: #8b95aa; }
+    .btn-logout-side {
+      display: flex; align-items: center; gap: 12px;
+      width: 100%; padding: 11px 14px;
+      border-radius: 9px;
+      background: #c0392b; color: #fff;
+      font-size: 14px; font-weight: 600;
+      border: none; cursor: pointer;
+      transition: background 0.18s;
+    }
+    .btn-logout-side:hover { background: #a93226; }
+    .sidebar-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4); z-index: 199;
+    }
+    .sidebar-overlay.show { display: block; }
+
+    /* ══════════════════════════════════════
+       MAIN CONTENT
+    ══════════════════════════════════════ */
+    .main-wrapper {
+      margin-left: 220px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .topbar {
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 0 32px;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .topbar-title { font-size: 20px; font-weight: 700; color: #111827; }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .topbar-welcome { font-size: 14px; color: #6b7280; }
+    .topbar-welcome b { color: #111827; }
+    .add-btn {
+      padding: 9px 20px;
+      background: #2563eb; color: white;
+      border: none; border-radius: 9px;
+      font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: background 0.18s;
+    }
+    .add-btn:hover { background: #1d4ed8; }
+    .hamburger {
+      display: none; background: none;
+      border: 1px solid #e5e7eb; border-radius: 8px;
+      padding: 6px 10px; font-size: 18px;
+      cursor: pointer; color: #374151;
+    }
+    .page-body { padding: 28px 32px; flex: 1; }
+
+    /* Flash */
+    .flash-message { padding: 12px 18px; border-radius: 10px; margin-bottom: 16px; font-size: 14px; font-weight: 500; }
+    .flash-success { background: #d1fae5; color: #065f46; }
+    .flash-error   { background: #fee2e2; color: #991b1b; }
+
+    /* ══════════════════════════════════════
+       SUMMARY CARDS
+    ══════════════════════════════════════ */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .summary-card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .summary-card .sc-icon {
+      font-size: 26px;
+      margin-bottom: 4px;
+    }
+    .summary-card .sc-label {
+      font-size: 12px;
+      color: #6b7280;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .summary-card .sc-value {
+      font-size: 26px;
+      font-weight: 800;
+      color: #111827;
+      line-height: 1.1;
+    }
+    .summary-card .sc-sub {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .summary-card.green .sc-value { color: #059669; }
+    .summary-card.red   .sc-value { color: #dc2626; }
+    .summary-card.amber .sc-value { color: #d97706; }
+
+    /* ══════════════════════════════════════
+       FILTERS BAR
+    ══════════════════════════════════════ */
+    .filters-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .filter-input {
+      padding: 9px 14px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 9px;
+      font-size: 14px;
+      color: #111827;
+      background: #fff;
+      transition: border-color 0.2s;
+    }
+    .filter-input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+    .filter-input.search { min-width: 220px; }
+    .filter-select {
+      padding: 9px 14px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 9px;
+      font-size: 14px;
+      color: #374151;
+      background: #fff;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .filter-select:focus { outline: none; border-color: #2563eb; }
+
+    /* ══════════════════════════════════════
+       TABLE CARD
+    ══════════════════════════════════════ */
+    .table-card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      overflow: hidden;
+    }
+    .table-card-header {
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .table-card-header h3 { font-size: 17px; font-weight: 700; color: #111827; }
+    .record-count {
+      font-size: 13px; color: #6b7280;
+      background: #f3f4f6; padding: 4px 12px;
+      border-radius: 20px; font-weight: 600;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: #2563eb; color: #ffffff;
+      font-size: 13px; font-weight: 600;
+      padding: 13px 20px; text-align: left;
+    }
+    tbody tr { border-bottom: 1px solid #f3f4f6; transition: background 0.1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #f8faff; }
+    tbody td { padding: 14px 20px; font-size: 14px; color: #374151; vertical-align: middle; }
+
+    .patient-cell { display: flex; align-items: center; gap: 12px; }
+    .avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: #2563eb; color: white;
+      font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .pt-name  { font-weight: 600; color: #111827; font-size: 14px; }
+    .pt-id    { font-size: 12px; color: #9ca3af; margin-top: 1px; }
+
+    .inv-id   { font-size: 13px; font-weight: 700; color: #374151; font-family: monospace; }
+    .inv-date { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+
+    .amount-cell { font-size: 15px; font-weight: 700; color: #111827; }
+
+    /* Status badges */
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 12px; font-weight: 700;
+    }
+    .badge-paid    { background: #d1fae5; color: #065f46; }
+    .badge-pending { background: #fef3c7; color: #92400e; }
+    .badge-overdue { background: #fee2e2; color: #991b1b; }
+    .badge-partial { background: #ede9fe; color: #5b21b6; }
+
+    .action-btns { display: flex; gap: 8px; }
+    .btn-sm {
+      padding: 6px 13px;
+      border-radius: 7px; font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: all 0.15s; border: 1px solid;
+    }
+    .btn-view    { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+    .btn-view:hover { background: #dbeafe; }
+    .btn-pay     { background: #d1fae5; color: #065f46; border-color: #6ee7b7; }
+    .btn-pay:hover  { background: #a7f3d0; }
+    .btn-edit    { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+    .btn-edit:hover { background: #dbeafe; }
+    .btn-del     { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+    .btn-del:hover  { background: #fee2e2; }
+
+    .empty-state { text-align: center; padding: 60px 24px; color: #9ca3af; }
+    .empty-state .ei { font-size: 52px; margin-bottom: 12px; }
+    .empty-state .et { font-size: 16px; font-weight: 600; color: #6b7280; margin-bottom: 4px; }
+    .empty-state .es { font-size: 14px; }
+
+    /* ══════════════════════════════════════
+       MODALS
+    ══════════════════════════════════════ */
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.45);
+      z-index: 999;
+      justify-content: center; align-items: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      background: white;
+      padding: 36px 40px;
+      border-radius: 20px;
+      width: 90%; max-width: 540px;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+      animation: modalIn 0.2s ease;
+    }
+    .modal-box.wide { max-width: 680px; }
+    @keyframes modalIn {
+      from { transform: scale(0.95) translateY(8px); opacity: 0; }
+      to   { transform: scale(1)    translateY(0);   opacity: 1; }
+    }
+    .modal-box h2 { font-size: 20px; font-weight: 800; color: #111827; margin-bottom: 24px; }
+    .modal-field  { margin-bottom: 16px; }
+    .modal-field label {
+      display: block; font-size: 12px; font-weight: 700;
+      color: #374151; text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 6px;
+    }
+    .modal-field input,
+    .modal-field select,
+    .modal-field textarea {
+      width: 100%; padding: 10px 14px;
+      border: 1.5px solid #e5e7eb; border-radius: 9px;
+      font-size: 14px; color: #111827; background: #fafafa;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .modal-field textarea { resize: vertical; min-height: 80px; }
+    .modal-field input:focus,
+    .modal-field select:focus,
+    .modal-field textarea:focus {
+      outline: none; border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1); background: #fff;
+    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .modal-actions { display: flex; gap: 12px; margin-top: 28px; }
+    .btn-primary {
+      flex: 1; padding: 12px;
+      background: #2563eb; color: white;
+      border: none; border-radius: 10px;
+      font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: background 0.18s;
+    }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary {
+      flex: 1; padding: 12px;
+      background: #f3f4f6; color: #374151;
+      border: none; border-radius: 10px;
+      font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: background 0.18s;
+    }
+    .btn-secondary:hover { background: #e5e7eb; }
+    .btn-danger {
+      flex: 1; padding: 12px;
+      background: #ef4444; color: white;
+      border: none; border-radius: 10px;
+      font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: background 0.18s;
+    }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-success {
+      flex: 1; padding: 12px;
+      background: #059669; color: white;
+      border: none; border-radius: 10px;
+      font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: background 0.18s;
+    }
+    .btn-success:hover { background: #047857; }
+
+    /* Invoice items table inside modal */
+    .items-table-wrap { margin-bottom: 16px; }
+    .items-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+    .items-table thead th {
+      background: #f3f4f6; color: #374151;
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      padding: 9px 10px; text-align: left;
+    }
+    .items-table tbody td { padding: 8px 10px; border-bottom: 1px solid #f3f4f6; }
+    .items-table input {
+      width: 100%; padding: 6px 8px;
+      border: 1px solid #e5e7eb; border-radius: 6px;
+      font-size: 13px; background: #fff; color: #111827;
+    }
+    .items-table input:focus { outline: none; border-color: #2563eb; }
+    .btn-add-row {
+      font-size: 13px; color: #2563eb; background: none;
+      border: 1px dashed #bfdbfe; border-radius: 7px;
+      padding: 6px 14px; cursor: pointer; font-weight: 600;
+      transition: background 0.15s;
+    }
+    .btn-add-row:hover { background: #eff6ff; }
+    .btn-remove-row {
+      background: none; border: none; color: #dc2626;
+      cursor: pointer; font-size: 16px; padding: 4px;
+      line-height: 1;
+    }
+
+    /* Invoice total summary */
+    .invoice-totals {
+      background: #f8faff; border-radius: 10px;
+      padding: 14px 16px; margin-bottom: 16px;
+    }
+    .total-row {
+      display: flex; justify-content: space-between;
+      font-size: 14px; padding: 4px 0;
+    }
+    .total-row.grand {
+      font-size: 16px; font-weight: 800; color: #111827;
+      border-top: 2px solid #e5e7eb; margin-top: 8px; padding-top: 10px;
+    }
+
+    /* View Invoice panel */
+    .invoice-view-header {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; margin-bottom: 24px;
+    }
+    .invoice-view-header .inv-title { font-size: 22px; font-weight: 800; color: #111827; }
+    .invoice-view-header .inv-meta  { font-size: 13px; color: #6b7280; margin-top: 4px; }
+    .patient-info-box {
+      background: #f8faff; border-radius: 10px;
+      padding: 14px 16px; margin-bottom: 20px;
+    }
+    .patient-info-box .pib-name { font-size: 15px; font-weight: 700; color: #111827; }
+    .patient-info-box .pib-id   { font-size: 13px; color: #6b7280; margin-top: 2px; }
+    .view-items-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+    .view-items-table thead th {
+      background: #2563eb; color: #fff;
+      font-size: 12px; font-weight: 600;
+      padding: 10px 14px; text-align: left;
+    }
+    .view-items-table tbody td { padding: 11px 14px; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
+    .view-items-table tfoot td {
+      padding: 10px 14px; font-weight: 700;
+      border-top: 2px solid #e5e7eb;
+    }
+
+    /* Delete confirm */
+    .delete-confirm-body { text-align: center; padding: 8px 0 4px; }
+    .delete-confirm-body .warn-icon { font-size: 52px; margin-bottom: 14px; }
+    .delete-confirm-body p { color: #6b7280; font-size: 15px; margin-bottom: 6px; }
+    .delete-confirm-body strong { color: #111827; font-size: 16px; }
+
+    /* Record payment modal */
+    .payment-summary-box {
+      background: #f0fdf4; border: 1px solid #a7f3d0;
+      border-radius: 10px; padding: 14px 16px; margin-bottom: 20px;
+    }
+    .payment-summary-box .ps-label { font-size: 12px; color: #065f46; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+    .payment-summary-box .ps-amount { font-size: 28px; font-weight: 800; color: #059669; margin-top: 2px; }
+    .payment-summary-box .ps-due { font-size: 13px; color: #065f46; margin-top: 2px; }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrapper { margin-left: 0; }
+      .hamburger { display: block; }
+      .page-body { padding: 20px 16px; }
+      .topbar { padding: 0 16px; }
+      .form-row { grid-template-columns: 1fr; }
+      .modal-box { padding: 24px 20px; }
+      .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="sidebarOverlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- ══════════════════════════════════════
+       SIDEBAR
+  ══════════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="MEDSYS">
+      <div class="brand-text">
+        <div class="brand-name">MEDSYS</div>
+        <div class="brand-sub">Receptionist</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="sidebar-link {% if active_page == 'patients' %}active{% endif %}" href="/receptionist/patients">
+        <span class="nav-icon">🧑‍⚕️</span> Patients
+      </a>
+      <a class="sidebar-link {% if active_page == 'appointments' %}active{% endif %}" href="/appointment">
+        <span class="nav-icon">📅</span> Appointments
+      </a>
+      <a class="sidebar-link {% if active_page == 'billing' %}active{% endif %}" href="/receptionist/billing">
+        <span class="nav-icon">💳</span> Billing &amp; Payments
+      </a>
+      <a class="sidebar-link {% if active_page == 'records' %}active{% endif %}" href="/receptionist/records">
+        <span class="nav-icon">🗂️</span> Patient Records
+      </a>
+      <a class="sidebar-link {% if active_page == 'resources' %}active{% endif %}" href="/resources">
+        <span class="nav-icon">📦</span> Resources
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-meta">Total staff: <b>{{ users_count }}</b></div>
+      <form action="/receptionist/logout" method="post">
+        <button type="submit" class="btn-logout-side">
+          <span>🚪</span> Logout
+        </button>
+      </form>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════════════════════
+       MAIN WRAPPER
+  ══════════════════════════════════════ -->
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="openSidebar()">☰</button>
+        <span class="topbar-title">Billing &amp; Payments</span>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-welcome">Welcome, <b>Receptionist</b></span>
+        <button class="add-btn" onclick="openAddModal()">+ New Invoice</button>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- Flash messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Summary Cards -->
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="sc-icon">🧾</div>
+          <div class="sc-label">Total Invoices</div>
+          <div class="sc-value">{{ invoices|length }}</div>
+          <div class="sc-sub">All records</div>
+        </div>
+        <div class="summary-card green">
+          <div class="sc-icon">✅</div>
+          <div class="sc-label">Collected</div>
+          <div class="sc-value">₹{{ "{:,.0f}".format(invoices | selectattr('status','equalto','Paid') | sum(attribute='total_amount')) }}</div>
+          <div class="sc-sub">Paid invoices</div>
+        </div>
+        <div class="summary-card red">
+          <div class="sc-icon">⏳</div>
+          <div class="sc-label">Outstanding</div>
+          <div class="sc-value">₹{{ "{:,.0f}".format(invoices | selectattr('status','ne','Paid') | sum(attribute='due_amount')) }}</div>
+          <div class="sc-sub">Pending + overdue</div>
+        </div>
+        <div class="summary-card amber">
+          <div class="sc-icon">🔴</div>
+          <div class="sc-label">Overdue</div>
+          <div class="sc-value">{{ invoices | selectattr('status','equalto','Overdue') | list | length }}</div>
+          <div class="sc-sub">Need attention</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-bar">
+        <input
+          type="text"
+          id="searchInput"
+          class="filter-input search"
+          placeholder="🔍  Search patient or invoice…"
+          oninput="filterTable()"
+        >
+        <select class="filter-select" id="statusFilter" onchange="filterTable()">
+          <option value="">All Statuses</option>
+          <option value="Paid">Paid</option>
+          <option value="Pending">Pending</option>
+          <option value="Overdue">Overdue</option>
+          <option value="Partial">Partial</option>
+        </select>
+        <input
+          type="date"
+          class="filter-input"
+          id="dateFilter"
+          onchange="filterTable()"
+          title="Filter by date"
+        >
+      </div>
+
+      <!-- Billing Table -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <h3>Invoice Records</h3>
+          <span class="record-count" id="recordCount">{{ invoices|length }} Records</span>
+        </div>
+
+        {% if invoices %}
+        <table id="billingTable">
+          <thead>
+            <tr>
+              <th>Invoice</th>
+              <th>Patient</th>
+              <th>Services</th>
+              <th>Total Amount</th>
+              <th>Due Amount</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for inv in invoices %}
+            <tr
+              data-patient="{{ inv.patient_name | lower }}"
+              data-invoice="{{ inv.invoice_number | lower }}"
+              data-status="{{ inv.status }}"
+              data-date="{{ inv.invoice_date }}"
+            >
+              <td>
+                <div class="inv-id">#{{ inv.invoice_number }}</div>
+                <div class="inv-date">{{ inv.invoice_date }}</div>
+              </td>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar">{{ inv.patient_name[:2] | upper }}</div>
+                  <div>
+                    <div class="pt-name">{{ inv.patient_name }}</div>
+                    <div class="pt-id">ID #{{ inv.patient_id }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span style="font-size:13px; color:#6b7280;">
+                  {{ inv.services_summary or '—' }}
+                </span>
+              </td>
+              <td><span class="amount-cell">₹{{ "{:,.0f}".format(inv.total_amount) }}</span></td>
+              <td>
+                <span class="amount-cell" style="color: {% if inv.due_amount > 0 %}#dc2626{% else %}#059669{% endif %};">
+                  ₹{{ "{:,.0f}".format(inv.due_amount) }}
+                </span>
+              </td>
+              <td>
+                {% if inv.status == 'Paid' %}
+                  <span class="badge badge-paid">✅ Paid</span>
+                {% elif inv.status == 'Pending' %}
+                  <span class="badge badge-pending">⏳ Pending</span>
+                {% elif inv.status == 'Overdue' %}
+                  <span class="badge badge-overdue">🔴 Overdue</span>
+                {% elif inv.status == 'Partial' %}
+                  <span class="badge badge-partial">🔵 Partial</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="action-btns">
+                  <button class="btn-sm btn-view" type="button"
+                    onclick="openViewModal(
+                      '{{ inv.invoice_number }}',
+                      '{{ inv.invoice_date }}',
+                      '{{ inv.due_date or '' }}',
+                      '{{ inv.patient_name }}',
+                      '{{ inv.patient_id }}',
+                      '{{ inv.status }}',
+                      {{ inv.total_amount }},
+                      {{ inv.due_amount }},
+                      {{ inv.paid_amount }},
+                      {{ inv.items | tojson | tojson }}
+                    )">View</button>
+                  {% if inv.status != 'Paid' %}
+                  <button class="btn-sm btn-pay" type="button"
+                    onclick="openPayModal({{ inv.id }}, '{{ inv.invoice_number }}', {{ inv.due_amount }}, '{{ inv.patient_name }}')">
+                    Pay
+                  </button>
+                  {% endif %}
+                  <button class="btn-sm btn-edit" type="button"
+                    onclick="openEditModal({{ inv.id }}, '{{ inv.patient_id }}', '{{ inv.invoice_date }}', '{{ inv.due_date or '' }}', '{{ inv.status }}', {{ inv.items | tojson | tojson }})">
+                    Edit
+                  </button>
+                  <button class="btn-sm btn-del" type="button"
+                    onclick="openDeleteModal({{ inv.id }}, '#{{ inv.invoice_number }}')">
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+          <div class="ei">💳</div>
+          <div class="et">No invoices found</div>
+          <div class="es">Click "+ New Invoice" to create the first billing record.</div>
+        </div>
+        {% endif %}
+      </div>
+
+    </div><!-- /page-body -->
+  </div><!-- /main-wrapper -->
+
+
+  <!-- ══════════════════════════════════════
+       ADD INVOICE MODAL
+  ══════════════════════════════════════ -->
+  <div id="addModal" class="modal-overlay">
+    <div class="modal-box wide">
+      <h2>🧾 New Invoice</h2>
+      <form method="post" action="/receptionist/billing/add">
+
+        <div class="form-row">
+          <div class="modal-field">
+            <label>Patient *</label>
+            <select name="patient_id" required>
+              <option value="">Select patient</option>
+              {% for p in patients %}
+              <option value="{{ p.id }}">{{ p.firstname }} {{ p.lastname }} (#{{ p.id }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="modal-field">
+            <label>Invoice Date *</label>
+            <input type="date" name="invoice_date" required
+              value="{{ today }}">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="modal-field">
+            <label>Due Date</label>
+            <input type="date" name="due_date">
+          </div>
+          <div class="modal-field">
+            <label>Status</label>
+            <select name="status">
+              <option value="Pending">Pending</option>
+              <option value="Paid">Paid</option>
+              <option value="Partial">Partial</option>
+              <option value="Overdue">Overdue</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Line items -->
+        <div class="modal-field">
+          <label>Services / Items</label>
+          <div class="items-table-wrap">
+            <table class="items-table" id="addItemsTable">
+              <thead>
+                <tr>
+                  <th style="width:40%">Description</th>
+                  <th style="width:18%">Qty</th>
+                  <th style="width:22%">Unit Price (₹)</th>
+                  <th style="width:15%">Total</th>
+                  <th style="width:5%"></th>
+                </tr>
+              </thead>
+              <tbody id="addItemsBody">
+                <tr>
+                  <td><input type="text"   name="item_desc[]"  placeholder="e.g. Consultation"></td>
+                  <td><input type="number" name="item_qty[]"   value="1" min="1" oninput="recalcAdd()"></td>
+                  <td><input type="number" name="item_price[]" value="0" min="0" step="0.01" oninput="recalcAdd()"></td>
+                  <td class="row-total" style="font-weight:700; font-size:13px; color:#111827;">₹0</td>
+                  <td><button type="button" class="btn-remove-row" onclick="removeRow(this, 'addItemsBody', 'recalcAdd')">×</button></td>
+                </tr>
+              </tbody>
+            </table>
+            <button type="button" class="btn-add-row" onclick="addRow('addItemsBody', 'recalcAdd')">+ Add Item</button>
+          </div>
+        </div>
+
+        <!-- Discount -->
+        <div class="form-row">
+          <div class="modal-field">
+            <label>Discount (₹)</label>
+            <input type="number" name="discount" id="addDiscount" value="0" min="0" step="0.01" oninput="recalcAdd()">
+          </div>
+          <div class="modal-field">
+            <label>Amount Paid (₹)</label>
+            <input type="number" name="paid_amount" id="addPaid" value="0" min="0" step="0.01" oninput="recalcAdd()">
+          </div>
+        </div>
+
+        <div class="invoice-totals" id="addTotals">
+          <div class="total-row"><span>Subtotal</span><span id="addSubtotal">₹0</span></div>
+          <div class="total-row"><span>Discount</span><span id="addDiscountDisplay">–₹0</span></div>
+          <div class="total-row grand"><span>Total</span><span id="addTotal">₹0</span></div>
+          <div class="total-row" style="color:#059669;"><span>Paid</span><span id="addPaidDisplay">₹0</span></div>
+          <div class="total-row" style="color:#dc2626; font-weight:700;"><span>Balance Due</span><span id="addDue">₹0</span></div>
+        </div>
+
+        <div class="modal-field">
+          <label>Notes</label>
+          <textarea name="notes" placeholder="Any additional notes…"></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary">Create Invoice</button>
+          <button type="button" class="btn-secondary" onclick="closeAddModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════
+       EDIT INVOICE MODAL
+  ══════════════════════════════════════ -->
+  <div id="editModal" class="modal-overlay">
+    <div class="modal-box wide">
+      <h2>✏️ Edit Invoice</h2>
+      <form method="post" id="editForm" action="">
+
+        <div class="form-row">
+          <div class="modal-field">
+            <label>Patient *</label>
+            <select name="patient_id" id="edit_patient_id" required>
+              <option value="">Select patient</option>
+              {% for p in patients %}
+              <option value="{{ p.id }}">{{ p.firstname }} {{ p.lastname }} (#{{ p.id }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="modal-field">
+            <label>Invoice Date *</label>
+            <input type="date" name="invoice_date" id="edit_invoice_date" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="modal-field">
+            <label>Due Date</label>
+            <input type="date" name="due_date" id="edit_due_date">
+          </div>
+          <div class="modal-field">
+            <label>Status</label>
+            <select name="status" id="edit_status">
+              <option value="Pending">Pending</option>
+              <option value="Paid">Paid</option>
+              <option value="Partial">Partial</option>
+              <option value="Overdue">Overdue</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-field">
+          <label>Services / Items</label>
+          <div class="items-table-wrap">
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th style="width:40%">Description</th>
+                  <th style="width:18%">Qty</th>
+                  <th style="width:22%">Unit Price (₹)</th>
+                  <th style="width:15%">Total</th>
+                  <th style="width:5%"></th>
+                </tr>
+              </thead>
+              <tbody id="editItemsBody">
+                <!-- populated by JS -->
+              </tbody>
+            </table>
+            <button type="button" class="btn-add-row" onclick="addRow('editItemsBody', 'recalcEdit')">+ Add Item</button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="modal-field">
+            <label>Discount (₹)</label>
+            <input type="number" name="discount" id="edit_discount" value="0" min="0" step="0.01" oninput="recalcEdit()">
+          </div>
+          <div class="modal-field">
+            <label>Amount Paid (₹)</label>
+            <input type="number" name="paid_amount" id="edit_paid" value="0" min="0" step="0.01" oninput="recalcEdit()">
+          </div>
+        </div>
+
+        <div class="invoice-totals">
+          <div class="total-row"><span>Subtotal</span><span id="editSubtotal">₹0</span></div>
+          <div class="total-row"><span>Discount</span><span id="editDiscountDisplay">–₹0</span></div>
+          <div class="total-row grand"><span>Total</span><span id="editTotal">₹0</span></div>
+          <div class="total-row" style="color:#059669;"><span>Paid</span><span id="editPaidDisplay">₹0</span></div>
+          <div class="total-row" style="color:#dc2626; font-weight:700;"><span>Balance Due</span><span id="editDue">₹0</span></div>
+        </div>
+
+        <div class="modal-field">
+          <label>Notes</label>
+          <textarea name="notes" id="edit_notes" placeholder="Any additional notes…"></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-primary">Save Changes</button>
+          <button type="button" class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════
+       VIEW INVOICE MODAL
+  ══════════════════════════════════════ -->
+  <div id="viewModal" class="modal-overlay">
+    <div class="modal-box wide">
+      <div class="invoice-view-header">
+        <div>
+          <div class="inv-title">Invoice <span id="view_inv_number"></span></div>
+          <div class="inv-meta">Issued: <span id="view_inv_date"></span> &nbsp;|&nbsp; Due: <span id="view_due_date"></span></div>
+        </div>
+        <div id="view_status_badge"></div>
+      </div>
+
+      <div class="patient-info-box">
+        <div class="pib-name" id="view_patient_name"></div>
+        <div class="pib-id" id="view_patient_id"></div>
+      </div>
+
+      <table class="view-items-table" id="view_items_table">
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th style="width:80px; text-align:center;">Qty</th>
+            <th style="width:130px; text-align:right;">Unit Price</th>
+            <th style="width:130px; text-align:right;">Total</th>
+          </tr>
+        </thead>
+        <tbody id="view_items_body"></tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3" style="text-align:right; color:#6b7280;">Subtotal</td>
+            <td style="text-align:right;" id="view_subtotal"></td>
+          </tr>
+          <tr>
+            <td colspan="3" style="text-align:right; color:#6b7280;">Discount</td>
+            <td style="text-align:right; color:#dc2626;" id="view_discount"></td>
+          </tr>
+          <tr>
+            <td colspan="3" style="text-align:right; font-size:15px;">Grand Total</td>
+            <td style="text-align:right; font-size:15px; color:#111827;" id="view_grand"></td>
+          </tr>
+          <tr>
+            <td colspan="3" style="text-align:right; color:#059669;">Paid</td>
+            <td style="text-align:right; color:#059669;" id="view_paid"></td>
+          </tr>
+          <tr>
+            <td colspan="3" style="text-align:right; color:#dc2626; font-size:15px;">Balance Due</td>
+            <td style="text-align:right; color:#dc2626; font-size:15px;" id="view_due"></td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" onclick="closeViewModal()">Close</button>
+        <button type="button" class="btn-primary" onclick="window.print()">🖨️ Print</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════
+       RECORD PAYMENT MODAL
+  ══════════════════════════════════════ -->
+  <div id="payModal" class="modal-overlay">
+    <div class="modal-box">
+      <h2>💰 Record Payment</h2>
+      <form method="post" id="payForm" action="">
+
+        <div class="payment-summary-box">
+          <div class="ps-label">Invoice</div>
+          <div class="ps-amount" id="pay_invoice_number"></div>
+          <div class="ps-due">Balance due: <b id="pay_due_amount"></b> &nbsp;|&nbsp; Patient: <b id="pay_patient_name"></b></div>
+        </div>
+
+        <div class="modal-field">
+          <label>Payment Amount (₹) *</label>
+          <input type="number" name="payment_amount" id="pay_amount_input"
+            min="0.01" step="0.01" placeholder="Enter amount" required>
+        </div>
+
+        <div class="modal-field">
+          <label>Payment Method *</label>
+          <select name="payment_method" required>
+            <option value="">Select method</option>
+            <option value="Cash">💵 Cash</option>
+            <option value="Card">💳 Card</option>
+            <option value="UPI">📱 UPI</option>
+            <option value="Bank Transfer">🏦 Bank Transfer</option>
+            <option value="Insurance">🛡️ Insurance</option>
+            <option value="Cheque">📄 Cheque</option>
+          </select>
+        </div>
+
+        <div class="modal-field">
+          <label>Payment Date *</label>
+          <input type="date" name="payment_date" value="{{ today }}" required>
+        </div>
+
+        <div class="modal-field">
+          <label>Reference / Transaction ID</label>
+          <input type="text" name="reference" placeholder="Optional reference number">
+        </div>
+
+        <div class="modal-field">
+          <label>Notes</label>
+          <textarea name="notes" placeholder="Any payment notes…"></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="submit" class="btn-success">✅ Confirm Payment</button>
+          <button type="button" class="btn-secondary" onclick="closePayModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════
+       DELETE CONFIRM MODAL
+  ══════════════════════════════════════ -->
+  <div id="deleteModal" class="modal-overlay">
+    <div class="modal-box" style="max-width:420px;">
+      <div class="delete-confirm-body">
+        <div class="warn-icon">⚠️</div>
+        <h2 style="margin-bottom:12px;">Delete Invoice?</h2>
+        <p>You are about to delete invoice</p>
+        <strong id="deleteInvoiceLabel"></strong>
+        <p style="margin-top:12px; color:#ef4444; font-size:13px;">This action cannot be undone.</p>
+      </div>
+      <form method="post" id="deleteForm" action="">
+        <div class="modal-actions">
+          <button type="submit" class="btn-danger">Yes, Delete</button>
+          <button type="button" class="btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════
+       SCRIPTS
+  ══════════════════════════════════════ -->
+  <script>
+    /* ─── Sidebar ─── */
+    function openSidebar()  { document.getElementById('sidebar').classList.add('open');    document.getElementById('sidebarOverlay').classList.add('show');    document.body.style.overflow='hidden'; }
+    function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('show'); document.body.style.overflow=''; }
+
+    /* ─── Escape key ─── */
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeSidebar(); closeAddModal(); closeEditModal();
+        closeViewModal(); closePayModal(); closeDeleteModal();
+      }
+    });
+
+    /* ─── Click-outside closes modals ─── */
+    ['addModal','editModal','viewModal','payModal','deleteModal'].forEach(id => {
+      document.getElementById(id).addEventListener('click', function(e) {
+        if (e.target === this) {
+          this.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      });
+    });
+
+    function openModal(id)  { document.getElementById(id).classList.add('active');    document.body.style.overflow='hidden'; }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); document.body.style.overflow=''; }
+
+    /* ─── ADD modal ─── */
+    function openAddModal()  { recalcAdd(); openModal('addModal'); }
+    function closeAddModal() { closeModal('addModal'); }
+
+    /* ─── EDIT modal ─── */
+    function openEditModal(id, patientId, invoiceDate, dueDate, status, itemsJson) {
+      document.getElementById('editForm').action = '/receptionist/billing/edit/' + id;
+      document.getElementById('edit_patient_id').value  = patientId;
+      document.getElementById('edit_invoice_date').value = invoiceDate;
+      document.getElementById('edit_due_date').value     = dueDate;
+      document.getElementById('edit_status').value       = status;
+
+      const items = JSON.parse(itemsJson);
+      const tbody = document.getElementById('editItemsBody');
+      tbody.innerHTML = '';
+      (items.length ? items : [{desc:'', qty:1, price:0}]).forEach(item => {
+        addRowData('editItemsBody', 'recalcEdit', item.desc || '', item.qty || 1, item.price || 0);
+      });
+      recalcEdit();
+      openModal('editModal');
+    }
+    function closeEditModal() { closeModal('editModal'); }
+
+    /* ─── VIEW modal ─── */
+    function openViewModal(invNum, invDate, dueDate, patName, patId, status, total, due, paid, itemsJson) {
+      document.getElementById('view_inv_number').textContent  = '#' + invNum;
+      document.getElementById('view_inv_date').textContent    = invDate;
+      document.getElementById('view_due_date').textContent    = dueDate || '—';
+      document.getElementById('view_patient_name').textContent = patName;
+      document.getElementById('view_patient_id').textContent  = 'Patient ID #' + patId;
+
+      const badgeMap = {
+        'Paid':    '<span class="badge badge-paid">✅ Paid</span>',
+        'Pending': '<span class="badge badge-pending">⏳ Pending</span>',
+        'Overdue': '<span class="badge badge-overdue">🔴 Overdue</span>',
+        'Partial': '<span class="badge badge-partial">🔵 Partial</span>',
+      };
+      document.getElementById('view_status_badge').innerHTML = badgeMap[status] || '';
+
+      const items = JSON.parse(itemsJson);
+      let subtotal = 0;
+      const tbody = document.getElementById('view_items_body');
+      tbody.innerHTML = '';
+      items.forEach(item => {
+        const row_total = (parseFloat(item.qty)||0) * (parseFloat(item.price)||0);
+        subtotal += row_total;
+        tbody.innerHTML += `<tr>
+          <td>${item.desc || '—'}</td>
+          <td style="text-align:center;">${item.qty}</td>
+          <td style="text-align:right;">₹${fmt(item.price)}</td>
+          <td style="text-align:right;">₹${fmt(row_total)}</td>
+        </tr>`;
+      });
+
+      const discount = subtotal - total;
+      document.getElementById('view_subtotal').textContent  = '₹' + fmt(subtotal);
+      document.getElementById('view_discount').textContent  = discount > 0 ? '–₹' + fmt(discount) : '—';
+      document.getElementById('view_grand').textContent     = '₹' + fmt(total);
+      document.getElementById('view_paid').textContent      = '₹' + fmt(paid);
+      document.getElementById('view_due').textContent       = '₹' + fmt(due);
+
+      openModal('viewModal');
+    }
+    function closeViewModal() { closeModal('viewModal'); }
+
+    /* ─── PAY modal ─── */
+    function openPayModal(id, invNumber, dueAmount, patientName) {
+      document.getElementById('payForm').action = '/receptionist/billing/pay/' + id;
+      document.getElementById('pay_invoice_number').textContent = '#' + invNumber;
+      document.getElementById('pay_due_amount').textContent = '₹' + fmt(dueAmount);
+      document.getElementById('pay_patient_name').textContent = patientName;
+      document.getElementById('pay_amount_input').value = dueAmount;
+      document.getElementById('pay_amount_input').max  = dueAmount;
+      openModal('payModal');
+    }
+    function closePayModal() { closeModal('payModal'); }
+
+    /* ─── DELETE modal ─── */
+    function openDeleteModal(id, label) {
+      document.getElementById('deleteForm').action = '/receptionist/billing/delete/' + id;
+      document.getElementById('deleteInvoiceLabel').textContent = label;
+      openModal('deleteModal');
+    }
+    function closeDeleteModal() { closeModal('deleteModal'); }
+
+    /* ══════════════════════════════
+       LINE ITEM HELPERS
+    ══════════════════════════════ */
+    function addRow(tbodyId, recalcFn) {
+      addRowData(tbodyId, recalcFn, '', 1, 0);
+    }
+
+    function addRowData(tbodyId, recalcFn, desc, qty, price) {
+      const tbody = document.getElementById(tbodyId);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input type="text"   name="item_desc[]"  value="${desc}"  placeholder="Description"></td>
+        <td><input type="number" name="item_qty[]"   value="${qty}"   min="1"    oninput="${recalcFn}()"></td>
+        <td><input type="number" name="item_price[]" value="${price}" min="0" step="0.01" oninput="${recalcFn}()"></td>
+        <td class="row-total" style="font-weight:700; font-size:13px; color:#111827;">₹0</td>
+        <td><button type="button" class="btn-remove-row" onclick="removeRow(this, '${tbodyId}', '${recalcFn}')">×</button></td>
+      `;
+      tbody.appendChild(tr);
+      window[recalcFn]();
+    }
+
+    function removeRow(btn, tbodyId, recalcFn) {
+      const tbody = document.getElementById(tbodyId);
+      if (tbody.rows.length <= 1) return;
+      btn.closest('tr').remove();
+      window[recalcFn]();
+    }
+
+    function getRowsSubtotal(tbodyId) {
+      let sub = 0;
+      document.querySelectorAll(`#${tbodyId} tr`).forEach(tr => {
+        const qty   = parseFloat(tr.querySelector('input[name="item_qty[]"]')?.value)   || 0;
+        const price = parseFloat(tr.querySelector('input[name="item_price[]"]')?.value) || 0;
+        const total = qty * price;
+        const cell  = tr.querySelector('.row-total');
+        if (cell) cell.textContent = '₹' + fmt(total);
+        sub += total;
+      });
+      return sub;
+    }
+
+    function recalcAdd() {
+      const sub      = getRowsSubtotal('addItemsBody');
+      const discount = parseFloat(document.getElementById('addDiscount').value)  || 0;
+      const paid     = parseFloat(document.getElementById('addPaid').value)      || 0;
+      const total    = Math.max(0, sub - discount);
+      const due      = Math.max(0, total - paid);
+      document.getElementById('addSubtotal').textContent        = '₹' + fmt(sub);
+      document.getElementById('addDiscountDisplay').textContent = '–₹' + fmt(discount);
+      document.getElementById('addTotal').textContent           = '₹' + fmt(total);
+      document.getElementById('addPaidDisplay').textContent     = '₹' + fmt(paid);
+      document.getElementById('addDue').textContent             = '₹' + fmt(due);
+    }
+
+    function recalcEdit() {
+      const sub      = getRowsSubtotal('editItemsBody');
+      const discount = parseFloat(document.getElementById('edit_discount').value) || 0;
+      const paid     = parseFloat(document.getElementById('edit_paid').value)     || 0;
+      const total    = Math.max(0, sub - discount);
+      const due      = Math.max(0, total - paid);
+      document.getElementById('editSubtotal').textContent        = '₹' + fmt(sub);
+      document.getElementById('editDiscountDisplay').textContent = '–₹' + fmt(discount);
+      document.getElementById('editTotal').textContent           = '₹' + fmt(total);
+      document.getElementById('editPaidDisplay').textContent     = '₹' + fmt(paid);
+      document.getElementById('editDue').textContent             = '₹' + fmt(due);
+    }
+
+    /* ──────────────────────────────
+       TABLE FILTERING
+    ────────────────────────────── */
+    function filterTable() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const status = document.getElementById('statusFilter').value;
+      const date   = document.getElementById('dateFilter').value;
+      const rows   = document.querySelectorAll('#billingTable tbody tr');
+      let visible  = 0;
+      rows.forEach(row => {
+        const matchSearch = !search || row.dataset.patient.includes(search) || row.dataset.invoice.includes(search);
+        const matchStatus = !status || row.dataset.status === status;
+        const matchDate   = !date   || row.dataset.date === date;
+        const show = matchSearch && matchStatus && matchDate;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      document.getElementById('recordCount').textContent = visible + ' Records';
+    }
+
+    /* ──────────────────────────────
+       HELPERS
+    ────────────────────────────── */
+    function fmt(n) {
+      return parseFloat(n).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    }
+  </script>
+</body>
+</html>

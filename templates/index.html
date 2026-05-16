@@ -9,21 +9,22 @@
 <body>
     <div class="navbar">
         <div class="logo">
-            <img src="logo.jpeg" alt="MEDSYS Logo"><img src="{{ url_for('static', filename='logo.jpeg') }}" alt="MEDSYS Logo">
+           <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="MEDSYS Logo">
         </div>
         <ul class="nav-links">
-            <li><a href="index.html" class="active">Home</a></li>
-            <li><a href="#">About Us</a></li>
-           <li>
-    <a href="resources.html">Resources</a>
+            <li><a href="/" class="active">Home</a></li>
+           <li><a href="/about">About Us</a></li>
+          <li>
+    <a href="/resources">Resources</a>
     <div class="dropdown-content">
-       <a href="system-requirements.html">System Requirements</a>
-        <a href="resources.html#downloads">Downloads</a>
-        <a href="resources.html#faq">FAQ</a>
-        <a href="resources.html#documentation">Documentation</a>
-        <a href="resources.html#support">Support</a>
+       <a href="/sysreq">System Requirements</a>
+        <a href="/resources#downloads">Downloads</a>
+        <a href="/resources#faq">FAQ</a>
+        <a href="/resources#documentation">Documentation</a>
+        <a href="/resources#support">Support</a>
     </div>
 </li>
+            <li><a href="/appointment">Appointment Booking</a></li>
             <li>
                 <a href="#">Contact Us</a>
                 <div class="dropdown-content">

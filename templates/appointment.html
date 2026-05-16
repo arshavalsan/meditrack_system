@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEDSYS - Appointment Booking</title>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="MEDSYS Logo">
+        </div>
+        <ul class="nav-links">
+            <li><a href="/" class="active">Home</a></li>
+            <li><a href="/about">About Us</a></li>
+            <li>
+                <a href="/resources">Resources</a>
+                <div class="dropdown-content">
+                    <a href="/sysreq">System Requirements</a>
+                    <a href="/resources#downloads">Downloads</a>
+                    <a href="/resources#faq">FAQ</a>
+                    <a href="/resources#documentation">Documentation</a>
+                    <a href="/resources#support">Support</a>
+                </div>
+            </li>
+            <li><a href="/appointment" class="active">Appointment Booking</a></li>
+            <li>
+                <a href="#">Contact Us</a>
+                <div class="dropdown-content">
+                    <a href="#">Email</a>
+                    <a href="#">Locations</a>
+                </div>
+            </li>
+        </ul>
+        <div class="login-btn">
+            <ul class="nav-links" style="flex-grow: 0;">
+                <li><a href="/login">Login</a></li>
+            </ul>
+        </div>
+    </div>
+
+                <div class="content">
+        <div class="box">
+            <div class="box-header">
+                <h2>Book an Appointment</h2>
+                <a class="box-close" href="/receptionist/patients" aria-label="Close">✕</a>
+            </div>
+
+            <p>Please fill the form below. We will get back to you shortly.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <div style="margin: 12px 0;">
+                  {% for category, message in messages %}
+                    <div style="padding:10px 12px; border-radius:8px; margin-bottom:8px; background: #f3f4f6; border: 1px solid #e5e7eb;">
+                      <strong>{{ category|capitalize }}:</strong> {{ message }}
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            <form action="/appointment" method="POST">
+                <div class="field">
+                    <label for="appointment_type">Appointment Type</label>
+                    <select id="appointment_type" name="appointment_type" required>
+                        <option value="new" selected>New Appointment</option>
+                        <option value="followup">Revisit / Follow-up</option>
+                    </select>
+                </div>
+
+                <div class="field" id="previous_appointment_field" style="display:none;">
+                    <label for="previous_appointment_id">Previous appointment reference (optional)</label>
+                    <input id="previous_appointment_id" name="previous_appointment_id" type="text" placeholder="Enter previous appointment id/reference">
+                </div>
+
+                <div class="field">
+                    <label for="name">Name</label>
+                    <input id="name" name="name" type="text" placeholder="Enter your full name" required>
+                </div>
+
+
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input id="email" name="email" type="email" placeholder="Enter your email" required>
+                </div>
+
+                <div class="field">
+                    <label for="phone">Phone Number</label>
+                    <input id="phone" name="phone" type="tel" placeholder="Enter your phone number" required maxlength="15" pattern="^[0-9]{7,15}$">
+                </div>
+
+                <div class="field">
+                    <label for="doctor">Select a Doctor</label>
+                    <select id="doctor" name="doctor" required>
+                        <option value="">-- Choose a doctor --</option>
+                        <option value="Dr. Sarah Johnson">Dr. Sarah Johnson</option>
+                        <option value="Dr. Michael Brown">Dr. Michael Brown</option>
+                        <option value="Dr. Emily Davis">Dr. Emily Davis</option>
+                        <option value="Dr. Daniel Wilson">Dr. Daniel Wilson</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="time_schedule">Appointment Time Schedule</label>
+                    <select id="time_schedule" name="time_schedule" required>
+                        <option value="">-- Select schedule --</option>
+                        <option value="mon-fri">Monday – Friday (8:00 AM – 8:00 PM)</option>
+                        <option value="sat">Saturday (9:00 AM – 5:00 PM)</option>
+                        <option value="sun">Sunday (Emergency Only)</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="issue">Health Issue</label>
+                    <textarea id="issue" name="issue" rows="4" placeholder="Describe your health issue" required style="width:100%; padding:8px 10px; font-size:13px; border-radius:6px; border:1px solid #ccc; background:#f9f9f9;"></textarea>
+                </div>
+
+                <button class="btn" type="submit">Submit Appointment</button>
+            </form>
+
+            <script>
+                (function () {
+                    const typeSelect = document.getElementById('appointment_type');
+                    const prevField = document.getElementById('previous_appointment_field');
+
+                    function sync() {
+                        if (!typeSelect || !prevField) return;
+                        prevField.style.display = (typeSelect.value === 'followup') ? 'block' : 'none';
+                    }
+
+                    if (typeSelect) {
+                        typeSelect.addEventListener('change', sync);
+                        sync();
+                    }
+                })();
+            </script>
+        </div>
+    </div>
+
+    <footer class="footer-main">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>About MEDSYS</h4>
+                <p>MEDSYS is a trusted Hospital Management System built to simplify operations across patient records, billing, pharmacy, and staff management — all under one secure platform.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Contact Information</h4>
+                <div class="info-item"><span class="icon">&#9993;</span><span>support@medsys.com</span></div>
+                <div class="info-item"><span class="icon">&#9742;</span><span>+1 (800) 123-4567</span></div>
+                <div class="info-item"><span class="icon">&#128205;</span><span>123 Health Avenue, Medical City, NY 10001, USA</span></div>
+                <div class="info-item"><span class="icon">&#128231;</span><span>info@medsys.com</span></div>
+            </div>
+            <div class="footer-col">
+                <h4>Support Hours</h4>
+                <div class="footer-hours">
+                    <div class="row"><span>Monday – Friday</span><span>8:00 AM – 8:00 PM</span></div>
+                    <div class="row"><span>Saturday</span><span>9:00 AM – 5:00 PM</span></div>
+                    <div class="row"><span>Sunday</span><span>Emergency Only</span></div>
+                    <div class="row"><span>Technical Support</span><span>24 / 7</span></div>
+                </div>
+            </div>
+        </div>
+        <hr class="footer-divider">
+        <div class="footer-bottom">
+            <span>&copy; 2026 MEDSYS Hospital Management System. All Rights Reserved.</span>
+            <span class="footer-tagline">Empowering Healthcare, One Hospital at a Time.</span>
+        </div>
+    </footer>
+</body>
+</html>
+

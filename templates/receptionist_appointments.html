@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEDSYS - Receptionist</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ══════════════════════════════════════
+       DARK LEFT SIDEBAR (EduTutor style)
+    ══════════════════════════════════════ */
+    .sidebar {
+      width: 220px;
+      min-height: 100vh;
+      background: #1a1f2e;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 200;
+      transition: transform 0.3s ease;
+    }
+
+    /* Brand / logo area */
+    .sidebar-brand {
+      padding: 22px 20px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sidebar-brand img {
+      width: 38px; height: 38px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+    .sidebar-brand .brand-text .brand-name {
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .sidebar-brand .brand-text .brand-sub {
+      color: #6b7896;
+      font-size: 11px;
+      margin-top: 1px;
+    }
+
+    /* Nav links */
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 9px;
+      color: #8b95aa;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .sidebar-link .nav-icon {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .sidebar-link:hover {
+      background: rgba(255,255,255,0.06);
+      color: #ffffff;
+    }
+    .sidebar-link.active {
+      background: #2563eb;
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(37,99,235,0.4);
+    }
+
+    /* Footer / logout */
+    .sidebar-footer {
+      padding: 14px 12px 20px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .sidebar-meta {
+      font-size: 12px;
+      color: #4b5268;
+      padding: 0 6px 12px;
+    }
+    .sidebar-meta b { color: #8b95aa; }
+
+    .btn-logout-side {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 9px;
+      background: #c0392b;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+    .btn-logout-side:hover { background: #a93226; }
+
+    /* ══════════════════════════════════════
+       MAIN CONTENT AREA
+    ══════════════════════════════════════ */
+    .main-wrapper {
+      margin-left: 220px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Top bar */
+    .topbar {
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 0 32px;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .topbar-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #111827;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .topbar-welcome {
+      font-size: 14px;
+      color: #6b7280;
+    }
+    .topbar-welcome b { color: #111827; }
+
+    .add-btn {
+      padding: 9px 20px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+    .add-btn:hover { background: #1d4ed8; }
+
+    /* Hamburger (mobile only) */
+    .hamburger {
+      display: none;
+      background: none;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 18px;
+      cursor: pointer;
+      color: #374151;
+    }
+
+    /* ══════════════════════════════════════
+       PAGE BODY
+    ══════════════════════════════════════ */
+    .page-body {
+      padding: 28px 32px;
+      flex: 1;
+    }
+
+    /* Flash messages */
+    .flash-message {
+      padding: 12px 18px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .flash-success { background: #d1fae5; color: #065f46; }
+    .flash-error   { background: #fee2e2; color: #991b1b; }
+
+    /* Table card */
+    .table-card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      overflow: hidden;
+    }
+    .table-card-header {
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .table-card-header h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #111827;
+    }
+    .record-count {
+      font-size: 13px;
+      color: #6b7280;
+      background: #f3f4f6;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      background: #2563eb;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 13px 20px;
+      text-align: left;
+    }
+    tbody tr {
+      border-bottom: 1px solid #f3f4f6;
+      transition: background 0.1s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #f8faff; }
+    tbody td {
+      padding: 15px 20px;
+      font-size: 14px;
+      color: #374151;
+      vertical-align: middle;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+    .badge.ipd { background: #ede9fe; color: #5b21b6; }
+    .badge.emr { background: #fee2e2; color: #b91c1c; }
+    .badge.tele { background: #d1fae5; color: #065f46; }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: #9ca3af;
+    }
+    .empty-state .ei { font-size: 52px; margin-bottom: 12px; }
+    .empty-state .et { font-size: 16px; font-weight: 600; color: #6b7280; margin-bottom: 4px; }
+    .empty-state .es { font-size: 14px; }
+
+    /* Sidebar overlay */
+    .sidebar-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 199;
+    }
+    .sidebar-overlay.show { display: block; }
+
+    /* ── Modal ── */
+    .modal-overlay{
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 3000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+    .modal-overlay.open{ display: flex; }
+    .modal-box{
+      width: 980px;
+      max-width: 100%;
+      background: #fff;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0,0,0,.22);
+    }
+    .modal-header{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .modal-title{
+      font-size: 16px;
+      font-weight: 800;
+      color: #111827;
+    }
+    .modal-close{
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 800;
+      color: #374151;
+    }
+    .modal-close:hover{ background:#f9fafb; }
+    .modal-body{
+      padding: 14px 18px 18px;
+    }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrapper { margin-left: 0; }
+      .hamburger { display: block; }
+      .page-body { padding: 20px 16px; }
+      .topbar { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="sidebarOverlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="MEDSYS">
+      <div class="brand-text">
+        <div class="brand-name">MEDSYS</div>
+        <div class="brand-sub">Receptionist</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="sidebar-link {% if active_page == 'patients' %}active{% endif %}" href="/receptionist/patients">
+        <span class="nav-icon">🧑‍⚕️</span> Patients
+      </a>
+      <a class="sidebar-link {% if active_page == 'appointments' %}active{% endif %}" href="/receptionist/appointments">
+        <span class="nav-icon">📅</span> Appointments
+      </a>
+      <a class="sidebar-link {% if active_page == 'billing' %}active{% endif %}" href="/receptionist/billing">
+        <span class="nav-icon">💳</span> Billing & Payments
+      </a>
+      <a class="sidebar-link {% if active_page == 'records' %}active{% endif %}" href="/receptionist/records">
+        <span class="nav-icon">🗂️</span> Patient Records
+      </a>
+      <a class="sidebar-link {% if active_page == 'resources' %}active{% endif %}" href="/resources">
+        <span class="nav-icon">📦</span> Resources
+      </a>
+      <a class="sidebar-link {% if active_page == 'settings' %}active{% endif %}" href="/receptionist/settings">
+        <span class="nav-icon">⚙️</span> Settings
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-meta">Total staff: <b>{{ users_count }}</b></div>
+      <form action="/receptionist/logout" method="post">
+        <button type="submit" class="btn-logout-side">
+          <span>🚪</span> Logout
+        </button>
+      </form>
+    </div>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="openSidebar()">☰</button>
+        <span class="topbar-title">Appointments</span>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-welcome">Welcome, <b>Receptionist</b></span>
+        <button class="add-btn" type="button" onclick="openNewAppointmentModal()">+ Book Appointment</button>
+      </div>
+    </header>
+
+    <div class="page-body">
+
+      <!-- ── NEW APPOINTMENT MODAL (reuses /appointment page) ── -->
+      <div class="modal-overlay" id="newAppointmentModal" onclick="closeNewAppointmentModal(event)">
+        <div class="modal-box" role="dialog" aria-modal="true" aria-label="New Appointment" onclick="event.stopPropagation()">
+          <div class="modal-header">
+            <div class="modal-title">Book Appointment</div>
+            <button class="modal-close" type="button" onclick="closeNewAppointmentModal(event)" aria-label="Close">✕</button>
+          </div>
+          <div class="modal-body">
+            <iframe
+              src="/appointment"
+              style="width:100%; height:540px; border:1px solid #e5e7eb; border-radius:12px; background:#fff;"
+              title="Appointment Booking"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <div class="table-card">
+        <div class="table-card-header">
+          <h3>All Appointments</h3>
+          <span class="record-count">{{ appointments|length }} Records</span>
+        </div>
+
+        {% if appointments %}
+          <table>
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Type</th>
+                <th>Schedule</th>
+                <th>Issue</th>
+                <th>Booked At</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for appt in appointments %}
+                {%- set t = (appt.appointment_type or '')|lower -%}
+                {%- if t == 'ipd' -%}
+                  {%- set cls = 'ipd' -%}
+                {%- elif t == 'emergency' -%}
+                  {%- set cls = 'emr' -%}
+                {%- elif t == 'tele' -%}
+                  {%- set cls = 'tele' -%}
+                {%- else -%}
+                  {%- set cls = '' -%}
+                {%- endif -%}
+
+                <tr>
+                  <td style="font-weight:800;">{{ appt.patient_name }}</td>
+                  <td>{{ appt.doctor }}</td>
+                  <td><span class="badge {{ cls }}">{{ appt.appointment_type }}</span></td>
+                  <td>{{ appt.time_schedule }}</td>
+                  <td>{{ appt.issue }}</td>
+                  <td style="color:#9ca3af; font-weight:700;">{{ appt.created_at }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <div class="empty-state">
+            <div class="ei">📅</div>
+            <div class="et">No appointments found</div>
+            <div class="es">Book an appointment from the Appointment Booking page.</div>
+          </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function openSidebar() {
+      document.getElementById('sidebar').classList.add('open');
+      document.getElementById('sidebarOverlay').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    // ── New appointment modal ──
+    function openNewAppointmentModal() {
+      const modal = document.getElementById('newAppointmentModal');
+      if (!modal) return;
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeNewAppointmentModal(e) {
+      if (e && e.stopPropagation) e.stopPropagation();
+      const modal = document.getElementById('newAppointmentModal');
+      if (!modal) return;
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeSidebar();
+        closeNewAppointmentModal(e);
+      }
+    });
+  </script>
+</body>
+</html>
+

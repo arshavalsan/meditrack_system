@@ -1,0 +1,32 @@
+{% set role = current_role | default('Administrator') %}
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title">Navigation</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    {% if role == 'Administrator' %}
+      <a class="sidebar-link" href="/admin">Staff Management</a>
+      <a class="sidebar-link" href="/appointment">Appointment Booking</a>
+      <a class="sidebar-link" href="/resources">Resources</a>
+    {% elif role == 'Doctor' %}
+      <a class="sidebar-link" href="/appointment">My Appointments</a>
+      <a class="sidebar-link" href="/resources">Resources</a>
+    {% elif role == 'Nurse' %}
+      <a class="sidebar-link" href="/appointment">Appointments</a>
+      <a class="sidebar-link" href="/resources">Resources</a>
+    {% elif role == 'Pharmacist' %}
+      <a class="sidebar-link" href="/resources">Medicine Resources</a>
+      <a class="sidebar-link" href="/sysreq">System Requirements</a>
+    {% else %}
+      <a class="sidebar-link" href="/appointment">Appointment Booking</a>
+      <a class="sidebar-link" href="/resources">Resources</a>
+    {% endif %}
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-meta">Total staffs: <b>{{ users_count }}</b></div>
+  </div>
+</aside>
+

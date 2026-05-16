@@ -25,11 +25,11 @@ body {
     align-items: center;
     background-color: black;
     padding: 0 20px;
-    height: 200px;
+    height: 120px;
 }
 
 .logo img {
-    height: 100px;
+    height: 120px;
      align-items: center;
     width: auto;
     display: block;
@@ -699,6 +699,27 @@ body {
 .box h2 {
     margin-top: 0;
     color: #1565c0;
+}
+
+.box-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.box-close {
+    color: #1565c0;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    margin-top: 2px;
+    white-space: nowrap;
+}
+
+.box-close:hover {
+    text-decoration: underline;
 }
 
 /* Text */

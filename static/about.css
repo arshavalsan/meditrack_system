@@ -1,0 +1,224 @@
+/* ================================================
+   about.css  –  MEDSYS About Us page styles
+   Relies on style.css for: navbar, footer, btn-primary/secondary
+   ================================================ */
+
+/* ── HERO ── */
+.about-hero {
+  background: linear-gradient(135deg, #0a1e2e 0%, #0d2740 100%);
+  padding: 120px 6vw 80px;
+  text-align: center;
+  border-bottom: 3px solid #0097a7;
+}
+
+.about-hero-badge {
+  display: inline-block;
+  background: rgba(0,151,167,0.15);
+  border: 1px solid rgba(0,151,167,0.4);
+  color: #00bcd4;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  padding: 0.4rem 1.2rem;
+  border-radius: 100px;
+  margin-bottom: 1.4rem;
+}
+
+.about-hero h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  color: #f0f4f8;
+  margin-bottom: 1rem;
+  line-height: 1.15;
+}
+
+.about-hero h1 span { color: #0097a7; }
+
+.about-hero p {
+  color: #8fa3b1;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  max-width: 620px;
+  margin: 0 auto 2rem;
+}
+
+.about-hero-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ── MISSION ── */
+.about-mission {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  padding: 80px 6vw;
+  background: #0a1628;
+}
+
+.about-mission-visual {
+  background: #0d2740;
+  border: 1px solid rgba(0,151,167,0.2);
+  border-radius: 14px;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4/3;
+  position: relative;
+}
+
+.about-mission-visual::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #0097a7, #f5a623);
+  border-radius: 0 0 14px 14px;
+}
+
+.about-mission-visual svg { width: 80%; }
+
+.about-section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #0097a7;
+  margin-bottom: 0.6rem;
+}
+
+.about-mission-text h2 {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 800;
+  color: #f0f4f8;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.about-mission-text p {
+  color: #8fa3b1;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+}
+
+.about-mission-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.about-mission-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  color: #8fa3b1;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.about-check {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(0,151,167,0.15);
+  border: 1px solid #0097a7;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #0097a7;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+/* ── CORE MODULES ── */
+.about-modules {
+  background: #0d1f3c;
+  padding: 80px 6vw;
+  text-align: center;
+}
+
+.about-modules h2 {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 800;
+  color: #f0f4f8;
+  margin-bottom: 0.6rem;
+}
+
+.about-modules-sub {
+  color: #8fa3b1;
+  font-size: 0.95rem;
+  margin-bottom: 2.5rem;
+}
+
+.about-modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  text-align: left;
+}
+
+.about-card {
+  background: #111e30;
+  border: 1px solid rgba(0,151,167,0.15);
+  border-radius: 12px;
+  padding: 1.8rem;
+  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.about-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #0097a7, transparent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s;
+}
+
+.about-card:hover {
+  transform: translateY(-5px);
+  border-color: #0097a7;
+  box-shadow: 0 16px 36px rgba(0,0,0,0.35);
+}
+
+.about-card:hover::before { transform: scaleX(1); }
+
+.about-card-icon {
+  font-size: 1.8rem;
+  margin-bottom: 0.9rem;
+  width: 48px; height: 48px;
+  background: rgba(0,151,167,0.12);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-card h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f0f4f8;
+  margin-bottom: 0.5rem;
+}
+
+.about-card p {
+  font-size: 0.86rem;
+  color: #8fa3b1;
+  line-height: 1.7;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .about-mission { grid-template-columns: 1fr; gap: 36px; }
+  .about-hero { padding: 100px 5vw 60px; }
+}

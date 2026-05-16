@@ -1,154 +1,500 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MEDSYS Admin</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEDSYS Admin</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
 </head>
 <body>
 
-<div class="topbar"></div>
+  <!-- NAVBAR -->
+  <div class="navbar">
+      <div class="logo">
+         <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="MEDSYS Logo">
+      </div>
+      <ul class="nav-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/about">About Us</a></li>
+          <li>
+              <a href="/resources">Resources</a>
+              <div class="dropdown-content">
+                 <a href="/sysreq">System Requirements</a>
+                  <a href="/resources#downloads">Downloads</a>
+                  <a href="/resources#faq">FAQ</a>
+                  <a href="/resources#documentation">Documentation</a>
+                  <a href="/resources#support">Support</a>
+              </div>
+          </li>
+          <li><a href="/appointment">Appointment Booking</a></li>
+          <li>
+              <a href="#">Contact Us</a>
+              <div class="dropdown-content">
+                  <a href="#">Email</a>
+                  <a href="#">Locations</a>
+              </div>
+          </li>
+      </ul>
+      <div class="login-btn">
+          <ul class="nav-links" style="flex-grow: 0;">
+              <li>
+                <form action="/admin/logout" method="post" style="margin:0;">
+                  <button type="submit" class="btn-logout">Logout</button>
+                </form>
+              </li>
+          </ul>
+      </div>
+  </div>
 
-<div class="container">
+  <div class="topbar"></div>
 
-    <div class="header">
-        <h1>User Management</h1>
-        <button class="add-btn">+ Add User</button>
-    </div>
+  <div class="container">
 
-    <div class="table-card">
+      <div class="admin-header">
+          <div class="header-title">
+              <h1>Admin</h1>
+              <div class="records-meta">
+                  <span id="recordCount">{{ users|length }} Records</span>
+              </div>
+          </div>
 
-        <div class="table-header">
-            <h3>Registered Users</h3>
-            <span>{{ users|length }} Records</span>
-        </div>
+          <button class="add-btn" type="button" onclick="openAddUser()">+ Add User</button>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>User</th>
-                    <th>Contact</th>
-                    <th>Role</th>
-                    <th>Username</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
+          <button class="sidebar-toggle" type="button" aria-label="Open sidebar" onclick="openSidebar()">
+            ☰
+          </button>
+      </div>
 
-            <tbody>
-                {% for user in users %}
-                <tr>
-                    <td>
-                        <div class="user-cell">
-                            <div class="avatar">{{ user.firstname[:1] }}{{ user.lastname[:1] }}</div>
-                            <div>
-                                <div class="user-name">{{ user.firstname }} {{ user.lastname }}</div>
-                                <div class="user-id">ID #{{ user.id }}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="contact-cell">
-                            <div>{{ user.email }}</div>
-                            <small>{{ user.phone }}</small>
-                        </div>
-                    </td>
-                    <td>
-                        <span class="role-badge 
-                            {% if user.role == 'Doctor' %}doctor
-                            {% elif user.role == 'Nurse' %}nurse
-                            {% elif user.role == 'Administrator' %}admin
-                            {% elif user.role == 'Pharmacist' %}pharma
-                            {% endif %}">
-                            {{ user.role }}
-                        </span>
-                    </td>
-                    <td><span class="username">@{{ user.username }}</span></td>
-                    <td>
-                        <button class="edit-btn" onclick="openEdit(
-                            '{{ user.id }}',
-                            '{{ user.firstname }}',
-                            '{{ user.lastname }}',
-                            '{{ user.email }}',
-                            '{{ user.phone }}',
-                            '{{ user.role }}',
-                            '{{ user.username }}'
-                        )">Edit</button>
+      <div class="admin-layout">
+          <div id="sidebarOverlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
 
-                        <form action="/delete/{{ user.id }}" method="post" style="display:inline"
-                              onsubmit="return confirm('Delete this user?')">
-                            <button type="submit" class="delete-btn">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+          <!-- LEFT NAVIGATION -->
+          <aside class="sidebar">
+              <div class="sidebar-header">
+                  <div class="sidebar-title">Navigation</div>
+              </div>
 
-    </div>
-</div>
+              <nav class="sidebar-nav">
+                  <a class="sidebar-link active" href="#" data-role="All" onclick="filterByRole('All', this); return false;">
+                      All Staff
+                      <span class="role-count" id="count-All">{{ users|length }}</span>
+                  </a>
+                  <a class="sidebar-link" href="#" data-role="Doctor" onclick="filterByRole('Doctor', this); return false;">
+                      Doctor
+                      <span class="role-count" id="count-Doctor">0</span>
+                  </a>
+                  <a class="sidebar-link" href="#" data-role="Nurse" onclick="filterByRole('Nurse', this); return false;">
+                      Nurse
+                      <span class="role-count" id="count-Nurse">0</span>
+                  </a>
+                  <a class="sidebar-link" href="#" data-role="Administrator" onclick="filterByRole('Administrator', this); return false;">
+                      Administrator
+                      <span class="role-count" id="count-Administrator">0</span>
+                  </a>
+                  <a class="sidebar-link" href="#" data-role="Pharmacist" onclick="filterByRole('Pharmacist', this); return false;">
+                      Pharmacist
+                      <span class="role-count" id="count-Pharmacist">0</span>
+                  </a>
+                  <a class="sidebar-link" href="#" data-role="Lab Technician" onclick="filterByRole('Lab Technician', this); return false;">
+                      Lab Technician
+                      <span class="role-count" id="count-Lab Technician">0</span>
+                  </a>
+                  <a class="sidebar-link" href="#" data-role="Receptionist" onclick="filterByRole('Receptionist', this); return false;">
+                      Receptionist
+                      <span class="role-count" id="count-Receptionist">0</span>
+                  </a>
+                  <a class="sidebar-link" href="#" data-role="Patient" onclick="filterByRole('Patient', this); return false;">
+                      Patient
+                      <span class="role-count" id="count-Patient">0</span>
+                  </a>
+              </nav>
 
-<!-- EDIT MODAL -->
-<div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-     background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
-    <div style="background:white; padding:40px; border-radius:20px; width:90%; max-width:500px;">
-        <h2 style="margin-bottom:24px;">Edit User</h2>
-        <form id="editForm" method="post">
-            <div class="field" style="margin-bottom:16px;">
-                <label>First Name</label>
-                <input type="text" name="firstname" id="edit_firstname" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
-            </div>
-            <div class="field" style="margin-bottom:16px;">
-                <label>Last Name</label>
-                <input type="text" name="lastname" id="edit_lastname" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
-            </div>
-            <div class="field" style="margin-bottom:16px;">
-                <label>Email</label>
-                <input type="email" name="email" id="edit_email" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
-            </div>
-            <div class="field" style="margin-bottom:16px;">
-                <label>Phone</label>
-                <input type="text" name="phone" id="edit_phone" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
-            </div>
-            <div class="field" style="margin-bottom:16px;">
-                <label>Role</label>
-                <select name="role" id="edit_role" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
-                    <option>Doctor</option>
-                    <option>Nurse</option>
-                    <option>Administrator</option>
-                    <option>Pharmacist</option>
-                    <option>Lab Technician</option>
-                    <option>Receptionist</option>
-                </select>
-            </div>
-            <div class="field" style="margin-bottom:24px;">
-                <label>Username</label>
-                <input type="text" name="username" id="edit_username" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
-            </div>
-            <div style="display:flex; gap:12px;">
-                <button type="submit" class="edit-btn" style="flex:1; padding:12px;">Save Changes</button>
-                <button type="button" onclick="closeEdit()" class="delete-btn" style="flex:1; padding:12px;">Cancel</button>
-            </div>
-        </form>
-    </div>
-</div>
 
-<script>
-function openEdit(id, firstname, lastname, email, phone, role, username) {
-    document.getElementById('editForm').action = '/edit/' + id;
-    document.getElementById('edit_firstname').value = firstname;
-    document.getElementById('edit_lastname').value = lastname;
-    document.getElementById('edit_email').value = email;
-    document.getElementById('edit_phone').value = phone;
-    document.getElementById('edit_role').value = role;
-    document.getElementById('edit_username').value = username;
-    document.getElementById('editModal').style.display = 'flex';
-}
+              <div class="sidebar-footer">
+                  <div class="sidebar-meta">Total staffs: <b>{{ users|length }}</b></div>
+              </div>
+          </aside>
 
-function closeEdit() {
-    document.getElementById('editModal').style.display = 'none';
-}
-</script>
+          <!-- MIDDLE PANE -->
+          <main class="middle-pane">
+              <div class="table-card">
+
+                  <div class="table-header">
+                      <h3 id="tableTitle">All Staffs</h3>
+                      <span id="tableCount">{{ users|length }} Records</span>
+                  </div>
+
+                  <table>
+                      <thead>
+                          <tr>
+                              <th>User</th>
+                              <th>Contact</th>
+                              <th>Role</th>
+                              <th>Username</th>
+                              <th>Actions</th>
+                          </tr>
+                      </thead>
+
+                      <tbody id="userTableBody">
+                          {% for user in users %}
+                          <tr data-role="{{ user.role }}">
+                              <td>
+                                  <div class="user-cell">
+                                      <div class="avatar">{{ user.firstname[:1] }}{{ user.lastname[:1] }}</div>
+                                      <div>
+                                          <div class="user-name">{{ user.firstname }} {{ user.lastname }}</div>
+                                          <div class="user-id">ID #{{ user.id }}</div>
+                                      </div>
+                                  </div>
+                              </td>
+                              <td>
+                                  <div class="contact-cell">
+                                      <div>{{ user.email }}</div>
+                                      <small>{{ user.phone }}</small>
+                                  </div>
+                              </td>
+                              <td>
+                                  <span class="role-badge 
+                                      {% if user.role == 'Doctor' %}doctor
+                                      {% elif user.role == 'Nurse' %}nurse
+                                      {% elif user.role == 'Administrator' %}admin
+                                      {% elif user.role == 'Pharmacist' %}pharma
+                                      {% elif user.role == 'Lab Technician' %}lab
+                                      {% elif user.role == 'Receptionist' %}receptionist
+                                      {% elif user.role == 'Patient' %}patient
+                                      {% endif %}">
+                                      {{ user.role }}
+                                  </span>
+                              </td>
+                              <td><span class="username">@{{ user.username }}</span></td>
+                              <td>
+                                  <button class="edit-btn" onclick="openEdit(
+                                      '{{ user.id }}',
+                                      '{{ user.firstname }}',
+                                      '{{ user.lastname }}',
+                                      '{{ user.email }}',
+                                      '{{ user.phone }}',
+                                      '{{ user.role }}',
+                                      '{{ user.username }}'
+                                  )">Edit</button>
+
+                                  <form action="/delete/{{ user.id }}" method="post" style="display:inline"
+                                        onsubmit="return confirm('Delete this user?')">
+                                      <button type="submit" class="delete-btn">Delete</button>
+                                  </form>
+                              </td>
+                          </tr>
+                          {% endfor %}
+                      </tbody>
+                  </table>
+
+                  <!-- Empty state -->
+                  <div id="emptyState" style="display:none; text-align:center; padding:48px 24px; color:#9ca3af;">
+                      <div style="font-size:48px; margin-bottom:12px;">👤</div>
+                      <div style="font-size:16px; font-weight:600; margin-bottom:4px;">No staff found</div>
+                      <div style="font-size:14px;">No records match this role.</div>
+                  </div>
+
+              </div>
+          </main>
+      </div>
+  </div>
+
+  <!-- ADD MODAL -->
+  <div id="addModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+       background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
+      <div style="background:white; padding:40px; border-radius:20px; width:90%; max-width:500px; max-height:90vh; overflow-y:auto;">
+          <h2 style="margin-bottom:24px;">Add User</h2>
+          <form id="addForm" method="post" action="/submit-registration">
+              <div class="section-title" style="margin-bottom:12px; font-weight:600;">Personal Information</div>
+
+              <div class="field" style="margin-bottom:16px;">
+                  <label>First Name</label>
+                  <input type="text" name="firstname" id="add_firstname" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
+              </div>
+
+              <div class="field" style="margin-bottom:16px;">
+                  <label>Last Name</label>
+                  <input type="text" name="lastname" id="add_lastname" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
+              </div>
+
+              <div class="field" style="margin-bottom:16px;">
+                  <label>Email</label>
+                  <input type="email" name="email" id="add_email" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
+                  <div id="emailWarning" style="margin-top:8px; font-size:12px; color:#b91c1c; display:none;"></div>
+              </div>
+
+              <div class="field" style="margin-bottom:16px;">
+                  <label>Phone</label>
+                  <input type="text" name="phone" id="add_phone" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
+              </div>
+
+              <div class="field" style="margin-bottom:16px;">
+                  <label>Role</label>
+                  <select name="role" id="add_role" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
+                      <option>Doctor</option>
+                      <option>Nurse</option>
+                      <option>Administrator</option>
+                      <option>Pharmacist</option>
+                      <option>Lab Technician</option>
+                      <option>Receptionist</option>
+                      <option>Patient</option>
+                  </select>
+              </div>
+
+              <div class="section-title" style="margin:24px 0 12px; font-weight:600;">Account Credentials</div>
+
+              <div class="field" style="margin-bottom:16px;">
+                  <label>Username</label>
+                  <input type="text" name="username" id="add_username" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
+                  <div id="usernameWarning" style="margin-top:8px; font-size:12px; color:#b91c1c; display:none;"></div>
+              </div>
+
+              <div class="field" style="margin-bottom:16px;">
+                  <label>Password</label>
+                  <input type="password" name="password" id="add_password" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
+              </div>
+
+              <div style="display:flex; gap:12px;">
+                  <button id="createUserBtn" type="submit" class="edit-btn" style="flex:1; padding:12px;">Create User</button>
+                  <button type="button" onclick="closeAddUser()" class="delete-btn" style="flex:1; padding:12px;">Cancel</button>
+              </div>
+          </form>
+      </div>
+  </div>
+
+  <!-- EDIT MODAL -->
+  <div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+       background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
+      <div style="background:white; padding:40px; border-radius:20px; width:90%; max-width:500px; max-height:90vh; overflow-y:auto;">
+          <h2 style="margin-bottom:24px;">Edit User</h2>
+          <form id="editForm" method="post">
+              <div class="field" style="margin-bottom:16px;">
+                  <label>First Name</label>
+                  <input type="text" name="firstname" id="edit_firstname" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
+              </div>
+              <div class="field" style="margin-bottom:16px;">
+                  <label>Last Name</label>
+                  <input type="text" name="lastname" id="edit_lastname" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
+              </div>
+              <div class="field" style="margin-bottom:16px;">
+                  <label>Email</label>
+                  <input type="email" name="email" id="edit_email" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
+              </div>
+              <div class="field" style="margin-bottom:16px;">
+                  <label>Phone</label>
+                  <input type="text" name="phone" id="edit_phone" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
+              </div>
+              <div class="field" style="margin-bottom:16px;">
+                  <label>Role</label>
+                  <select name="role" id="edit_role" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
+                      <option>Doctor</option>
+                      <option>Nurse</option>
+                      <option>Administrator</option>
+                      <option>Pharmacist</option>
+                      <option>Lab Technician</option>
+                      <option>Receptionist</option>
+                      <option>Patient</option>
+                  </select>
+              </div>
+              <div class="field" style="margin-bottom:24px;">
+                  <label>Username</label>
+                  <input type="text" name="username" id="edit_username" style="width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:8px;">
+              </div>
+              <div style="display:flex; gap:12px;">
+                  <button type="submit" class="edit-btn" style="flex:1; padding:12px;">Save Changes</button>
+                  <button type="button" onclick="closeEdit()" class="delete-btn" style="flex:1; padding:12px;">Cancel</button>
+              </div>
+          </form>
+      </div>
+  </div>
+
+  <script>
+  // ─── SIDEBAR TOGGLE (mobile) ───────────────────────────────────────────────
+  function openSidebar() {
+      document.querySelector('.sidebar').classList.add('open');
+      document.getElementById('sidebarOverlay').classList.add('show');
+      document.body.style.overflow = 'hidden';
+  }
+
+  function closeSidebar() {
+      document.querySelector('.sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.remove('show');
+      document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
+
+  // ─── ROLE FILTERING ────────────────────────────────────────────────────────
+  const allRows = Array.from(document.querySelectorAll('#userTableBody tr'));
+
+  // Count per role and update badges on page load
+  function updateRoleCounts() {
+      const counts = {};
+      allRows.forEach(row => {
+          const role = row.dataset.role;
+          counts[role] = (counts[role] || 0) + 1;
+      });
+
+      // Update each sidebar badge
+      document.querySelectorAll('.sidebar-link[data-role]').forEach(link => {
+          const role = link.dataset.role;
+          const el = document.getElementById('count-' + role);
+          if (el) {
+              el.textContent = role === 'All' ? allRows.length : (counts[role] || 0);
+          }
+      });
+  }
+
+  function filterByRole(role, clickedLink) {
+      // Update active state on sidebar links
+      document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+      clickedLink.classList.add('active');
+
+      let visibleCount = 0;
+
+      allRows.forEach(row => {
+          const match = role === 'All' || row.dataset.role === role;
+          row.style.display = match ? '' : 'none';
+          if (match) visibleCount++;
+      });
+
+      // Update table header title and count
+      document.getElementById('tableTitle').textContent = role === 'All' ? 'All Staffs' : role + 's';
+      document.getElementById('tableCount').textContent = visibleCount + ' Record' + (visibleCount !== 1 ? 's' : '');
+      document.getElementById('recordCount').textContent = visibleCount + ' Record' + (visibleCount !== 1 ? 's' : '');
+
+      // Show empty state if no results
+      document.getElementById('emptyState').style.display = visibleCount === 0 ? 'block' : 'none';
+
+      // Close sidebar on mobile after selection
+      closeSidebar();
+  }
+
+  // Run on page load to populate counts
+  updateRoleCounts();
+
+
+  // ─── MODALS ────────────────────────────────────────────────────────────────
+  function openEdit(id, firstname, lastname, email, phone, role, username) {
+      document.getElementById('editForm').action = '/edit/' + id;
+      document.getElementById('edit_firstname').value = firstname;
+      document.getElementById('edit_lastname').value = lastname;
+      document.getElementById('edit_email').value = email;
+      document.getElementById('edit_phone').value = phone;
+      document.getElementById('edit_role').value = role;
+      document.getElementById('edit_username').value = username;
+      document.getElementById('editModal').style.display = 'flex';
+  }
+
+  function closeEdit() {
+      document.getElementById('editModal').style.display = 'none';
+  }
+
+  function openAddUser() {
+      document.getElementById('addModal').style.display = 'flex';
+  }
+
+  function closeAddUser() {
+      document.getElementById('addModal').style.display = 'none';
+  }
+
+  // ─── LIVE VALIDATION (Add User) ────────────────────────────────────────────
+  let usernameExists = false;
+  let emailExists = false;
+  let usernameTimer = null;
+  let emailTimer = null;
+
+  const usernameInput = document.getElementById('add_username');
+  const emailInput = document.getElementById('add_email');
+  const usernameWarning = document.getElementById('usernameWarning');
+  const emailWarning = document.getElementById('emailWarning');
+  const createUserBtn = document.getElementById('createUserBtn');
+
+  function updateCreateButtonState() {
+      const disable = usernameExists || emailExists;
+      createUserBtn.disabled = disable;
+      createUserBtn.style.opacity = disable ? 0.6 : 1;
+      createUserBtn.style.cursor = disable ? 'not-allowed' : 'pointer';
+  }
+
+  async function validateField(field, value) {
+      try {
+          const res = await fetch(`/validate-user?field=${encodeURIComponent(field)}&value=${encodeURIComponent(value)}`);
+          if (!res.ok) return false;
+          const data = await res.json();
+          return !!data.exists;
+      } catch (e) {
+          return false;
+      }
+  }
+
+  if (usernameInput) {
+      usernameInput.addEventListener('input', () => {
+          const value = usernameInput.value.trim();
+          usernameWarning.style.display = 'none';
+          usernameExists = false;
+          updateCreateButtonState();
+          if (!value) return;
+          if (usernameTimer) clearTimeout(usernameTimer);
+          usernameTimer = setTimeout(async () => {
+              usernameExists = await validateField('username', value);
+              usernameWarning.textContent = usernameExists ? 'Username already exists' : '';
+              usernameWarning.style.display = usernameExists ? 'block' : 'none';
+              updateCreateButtonState();
+          }, 350);
+      });
+  }
+
+  if (emailInput) {
+      emailInput.addEventListener('input', () => {
+          const value = emailInput.value.trim();
+          emailWarning.style.display = 'none';
+          emailExists = false;
+          updateCreateButtonState();
+          if (!value) return;
+          if (emailTimer) clearTimeout(emailTimer);
+          emailTimer = setTimeout(async () => {
+              emailExists = await validateField('email', value);
+              emailWarning.textContent = emailExists ? 'Email already exists' : '';
+              emailWarning.style.display = emailExists ? 'block' : 'none';
+              updateCreateButtonState();
+          }, 350);
+      });
+  }
+  </script>
+
+  <!-- FOOTER -->
+  <footer class="footer-main">
+      <div class="footer-grid">
+          <div class="footer-col">
+              <h4>About MEDSYS</h4>
+              <p>MEDSYS is a trusted Hospital Management System built to simplify operations across patient records, billing, pharmacy, and staff management — all under one secure platform.</p>
+          </div>
+          <div class="footer-col">
+              <h4>Contact Information</h4>
+              <div class="info-item"><span class="icon">&#9993;</span><span>support@medsys.com</span></div>
+              <div class="info-item"><span class="icon">&#9742;</span><span>+1 (800) 123-4567</span></div>
+              <div class="info-item"><span class="icon">&#128205;</span><span>123 Health Avenue, Medical City, NY 10001, USA</span></div>
+              <div class="info-item"><span class="icon">&#128231;</span><span>info@medsys.com</span></div>
+          </div>
+          <div class="footer-col">
+              <h4>Support Hours</h4>
+              <div class="footer-hours">
+                  <div class="row"><span>Monday – Friday</span><span>8:00 AM – 8:00 PM</span></div>
+                  <div class="row"><span>Saturday</span><span>9:00 AM – 5:00 PM</span></div>
+                  <div class="row"><span>Sunday</span><span>Emergency Only</span></div>
+                  <div class="row"><span>Technical Support</span><span>24 / 7</span></div>
+              </div>
+          </div>
+      </div>
+      <hr class="footer-divider">
+      <div class="footer-bottom">
+          <span>&copy; 2026 MEDSYS Hospital Management System. All Rights Reserved.</span>
+          <span class="footer-tagline">Empowering Healthcare, One Hospital at a Time.</span>
+      </div>
+  </footer>
 
 </body>
 </html>
